@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-06 19:51:55 gawen>
+   Time-stamp: <2013-03-06 22:31:53 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -67,15 +67,15 @@ static void event(const unsigned char *data, unsigned int size)
     /* Display the frame live. */
     mac_display(&frame, mac_info);
 
-    /* Append the frame to the PCAP file. */
-    append_frame(data + 1, size);
-
     /* For now we do not try decode payload.
        Instead we just dump the packet. */
     if(payload && frame.payload) {
       printf("Payload:\n");
       hex_dump(frame.payload, frame.size);
     }
+
+    /* Append the frame to the PCAP file. */
+    append_frame(data + 1, size);
 
     break;
   case(EV_INFO):
