@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-06 22:31:53 gawen>
+   Time-stamp: <2013-03-06 23:03:13 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,11 +16,14 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
+#define _POSIX_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <getopt.h>
 #include <string.h>
+#include <signal.h>
 #include <termios.h>
 #include <unistd.h>
 #include <err.h>
@@ -131,8 +134,14 @@ static void cleanup(void)
   destroy_pcap();
 }
 
+static void sig_cleanup(int signum)
+{
+  cleanup();
+}
+
 int main(int argc, char *argv[])
 {
+  struct sigaction act = { .sa_handler = sig_cleanup };
   const char *name;
   const char *tty  = NULL;
   const char *pcap = NULL;
@@ -242,7 +251,13 @@ int main(int argc, char *argv[])
     init_pcap(pcap);
 
   /* Register the cleanup function as the most
-     common way to leave the event loop is SIGINT. */
+     common way to leave the event loop is SIGINT.
+     The program may also quit because of an error
+     or the SIGTERM signal. So we need to register
+     an exit hook and signals too. */
+  sigfillset(&act.sa_mask);
+  sigaction(SIGTERM, &act, NULL);
+  sigaction(SIGINT, &act, NULL);
   atexit(cleanup);
 
   start_uart(tty, speed, event);
