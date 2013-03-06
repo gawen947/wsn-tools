@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-02-08 16:06:22 gawen>
+   Time-stamp: <2013-03-06 23:15:36 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <errno.h>
 #include <err.h>
 
 #define MAX_EVENT 256 /* maximum event size */
@@ -86,8 +87,13 @@ void start_uart(const char *path,
                           .tv_usec = 200000 };
     int ret = select(fd + 1, &rfds, NULL, NULL, &tv);
 
-    if(ret < 0)
+    if(ret < 0) {
+      /* signal caught */
+      if(errno == EINTR)
+        continue;
       err(EXIT_FAILURE, "cannot select");
+    }
+
     else if(!ret) {
       FD_SET(fd, &rfds);
       wait_message();
@@ -96,8 +102,13 @@ void start_uart(const char *path,
 
     size = read(fd, buf, sizeof(buf));
 
-    if(size <= 0)
+    if(size <= 0) {
+      /* signal caught */
+      if(errno == EINTR)
+        continue;
       err(EXIT_FAILURE, "cannot read");
+    }
+
 
     clear_message();
     callback(buf, size);
