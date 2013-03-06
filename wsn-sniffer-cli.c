@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-02 22:36:58 gawen>
+   Time-stamp: <2013-03-06 19:51:55 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -27,6 +27,7 @@
 
 #include "mac.h"
 #include "uart.h"
+#include "pcap.h"
 #include "dump.h"
 #include "help.h"
 
@@ -45,9 +46,9 @@
 enum event { EV_FRAME = 0xff,
              EV_INFO  = 0xfe };
 
-static bool payload = false;
-static unsigned int mac_info = 0;
-/* static unsigned int payload_info = 0; */
+static bool payload;
+static unsigned int mac_info;
+/* static unsigned int payload_info; */
 
 static void event(const unsigned char *data, unsigned int size)
 {
@@ -63,10 +64,14 @@ static void event(const unsigned char *data, unsigned int size)
       warnx("cannot decode frame");
     }
 
+    /* Display the frame live. */
     mac_display(&frame, mac_info);
 
+    /* Append the frame to the PCAP file. */
+    append_frame(data + 1, size);
+
     /* For now we do not try decode payload.
-       Instead   we just dump the packet. */
+       Instead we just dump the packet. */
     if(payload && frame.payload) {
       printf("Payload:\n");
       hex_dump(frame.payload, frame.size);
@@ -120,11 +125,17 @@ static speed_t baud(const char *arg)
   errx(EXIT_FAILURE, "unrecognized speed");
 }
 
+static void cleanup(void)
+{
+  /* Ensure that the PCAP file is closed properly to flush buffers. */
+  destroy_pcap();
+}
+
 int main(int argc, char *argv[])
 {
   const char *name;
-  const char *pcap = NULL;
   const char *tty  = NULL;
+  const char *pcap = NULL;
   speed_t speed = B0;
 
   int exit_status = EXIT_FAILURE;
@@ -227,9 +238,15 @@ int main(int argc, char *argv[])
   if(!pcap && !mac_info /* && !payload_info */)
     warnx("doing nothing as requested");
 
+  if(pcap)
+    init_pcap(pcap);
+
+  /* Register the cleanup function as the most
+     common way to leave the event loop is SIGINT. */
+  atexit(cleanup);
+
   start_uart(tty, speed, event);
 
 EXIT:
   return exit_status;
 }
-

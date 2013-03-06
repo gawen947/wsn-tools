@@ -1,5 +1,5 @@
 /* File: pcap.c
-   Time-stamp: <2013-02-05 19:17:02 gawen>
+   Time-stamp: <2013-03-06 19:39:39 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -69,6 +69,10 @@ void append_frame(const unsigned char *frame, unsigned int size)
   size_t n;
   struct timeval tv;
 
+  /* If the pcap was not initialized we do nothing. */
+  if(!pcap)
+    return;
+
   /* Note that POSIX.1-2008 marks this function obsolete and it is recommended
      to use clock_gettime() with nanoseconds timestamps instead. Since we just
      want a microsecond timestamp and we don't care so much about time for now I
@@ -87,5 +91,6 @@ void append_frame(const unsigned char *frame, unsigned int size)
 
 void destroy_pcap(void)
 {
-  fclose(pcap);
+  if(pcap)
+    fclose(pcap);
 }
