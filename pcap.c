@@ -37,7 +37,7 @@ static FILE *pcap;
 #define WRITE(size)                                               \
   static void write ## size (uint ## size ## _t value) {          \
     size_t n = fwrite(&value, sizeof(value), 1, pcap);            \
-    if(n != sizeof(value))                                        \
+    if(n != 1)                                                    \
       err(EXIT_FAILURE, "cannot write to pcap file");             \
   }
 
@@ -85,7 +85,7 @@ void append_frame(const unsigned char *frame, unsigned int size)
   write32(size);       /* actual length of packet */
 
   n = fwrite(frame, size, 1, pcap);
-  if(n != size)
+  if(n != 1)
     err(EXIT_FAILURE, "cannot write to pcap file");
 }
 
