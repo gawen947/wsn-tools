@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-06 23:03:13 gawen>
+   Time-stamp: <2013-03-06 23:17:07 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -136,7 +136,7 @@ static void cleanup(void)
 
 static void sig_cleanup(int signum)
 {
-  cleanup();
+  exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[])
