@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-11 00:24:45 gawen>
+   Time-stamp: <2013-03-11 00:42:13 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

@@ -1,5 +1,5 @@
 /* File: wsn-sniffer.c
-   Time-stamp: <2013-03-10 23:01:44 gawen>
+   Time-stamp: <2013-03-11 00:37:15 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -38,7 +38,7 @@ static unsigned int find_zero(const char *b)
 {
   unsigned int i;
 
-  for(i = 0 ; *b != '\0' && i < MAX_FRAME ; i++);
+  for(i = 0 ; *b != '\0' && i < MAX_FRAME ; i++, b++);
 
   return i;
 }
