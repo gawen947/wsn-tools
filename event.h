@@ -1,5 +1,5 @@
-/* File: uart.h
-   Time-stamp: <2013-02-06 02:25:38 gawen>
+/* File: event.h
+   Time-stamp: <2013-03-10 19:53:52 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,15 +16,10 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _UART_H_
-#define _UART_H_
+#ifndef _EVENT_H_
+#define _EVENT_H_
 
-#include <termios.h>
+enum event { EV_FRAME = 0x00,
+             EV_INFO  = 0x80 };
 
-#include "event.h"
-
-void start_uart(const char *path,
-                speed_t speed,
-                void (*callback)(const unsigned char *data, enum event event_type, size_t size));
-
-#endif /* _UART_H_ */
+#endif /* _EVENT_H_ */

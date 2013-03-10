@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-06 23:17:07 gawen>
+   Time-stamp: <2013-03-10 23:40:34 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -33,6 +33,7 @@
 #include "pcap.h"
 #include "dump.h"
 #include "help.h"
+#include "event.h"
 
 #define PACKAGE "wsn-sniffer-cli"
 
@@ -46,23 +47,20 @@
 # define PACKAGE_VERSION "v" VERSION " (commit: " PARTIAL_COMMIT ")"
 #endif /* COMMIT */
 
-enum event { EV_FRAME = 0xff,
-             EV_INFO  = 0xfe };
-
 static bool payload;
 static unsigned int mac_info;
 /* static unsigned int payload_info; */
 
-static void event(const unsigned char *data, unsigned int size)
+static void event(const unsigned char *data, enum event event_type, size_t size)
 {
   struct mac_frame frame;
 
-  switch(*data) {
+  switch(event_type) {
   case(EV_FRAME):
     /* We except a raw frame so we don't need to renormalize anything. */
-    if(mac_decode(&frame, data + 1, size - 1) < 0) {
+    if(mac_decode(&frame, data, size) < 0) {
 #ifndef NDEBUG
-      hex_dump(data + 1, size);
+      hex_dump(data, size);
 #endif /* NDEBUG */
       warnx("cannot decode frame");
     }
@@ -77,12 +75,14 @@ static void event(const unsigned char *data, unsigned int size)
       hex_dump(frame.payload, frame.size);
     }
 
+    putchar('\n');
+
     /* Append the frame to the PCAP file. */
-    append_frame(data + 1, size);
+    append_frame(data, size);
 
     break;
   case(EV_INFO):
-    write(STDOUT_FILENO, data + 1, size - 1);
+    write(STDOUT_FILENO, data, size);
     break;
   default:
     warnx("invalid event ignored");
@@ -91,8 +91,6 @@ static void event(const unsigned char *data, unsigned int size)
 #endif /* NDEBUG */
     break;
   }
-
-  putchar('\n');
 }
 
 static speed_t baud(const char *arg)

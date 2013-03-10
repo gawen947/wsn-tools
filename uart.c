@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-06 23:15:36 gawen>
+   Time-stamp: <2013-03-10 20:08:17 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -27,9 +27,12 @@
 #include <termios.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 #include <err.h>
 
-#define MAX_EVENT 256 /* maximum event size */
+#include "event.h"
+
+#define UART_BUFFER_SIZE 1024 /* UART input buffer size */
 
 static void wait_message(void)
 {
@@ -46,14 +49,9 @@ static void clear_message(void)
   fflush(stdout);
 }
 
-void start_uart(const char *path,
-                speed_t speed,
-                void (*callback)(const unsigned char *, unsigned int))
+static int open_uart(const char *path, speed_t speed)
 {
-  unsigned char buf[MAX_EVENT];
   struct termios options;
-  size_t size = 0;
-  fd_set rfds;
   int fd;
 
   fd = open(path, O_RDONLY | O_NOCTTY);
@@ -76,16 +74,80 @@ void start_uart(const char *path,
       err(EXIT_FAILURE, "cannot set tty attributes");
   }
 
-  /* setup file descriptor set */
+  return fd;
+}
+
+/* This is where we know about the struture of the frames on the serial line. */
+static size_t parse_uart_buffer(unsigned char *buffer, size_t size,
+                                void (*callback)(const unsigned char *,
+                                                 enum event,
+                                                 size_t))
+{
+  size_t frame_size;
+  const unsigned char *buffer_end = buffer + size;
+  const unsigned char *p;
+
+  for(p = buffer ; p < buffer_end ; p += frame_size) {
+    enum event event_type;
+
+    /* extract frame size and event type */
+    frame_size = *p & ~0x80;
+    event_type = *p & 0x80;
+
+    /* check that the entire frame is still inside the buffer */
+    if(p + frame_size >= buffer_end)
+      break;
+
+    /* skip information byte */
+    p++;
+
+    /* parse this frame */
+    clear_message();
+    callback(p, event_type, frame_size);
+  }
+
+  /* There are two ways to leave the preceding loop. Either we parsed the buffer
+     completely, that is, we lie on a next frame beyond the end of the buffer.
+     Either the last frame was incomplete and we lie on the information byte of
+     this frame, that is still inside the buffer. There is however one last case
+     of interest when the first frame is incomplete and we still lie at the
+     beginning of the buffer. In such case we may avoid an unnecessary call to
+     memmove which would have copied the frame anyway. */
+  if(p >= buffer_end)
+    return 0;
+  else if(p == buffer)
+    return buffer_end - p;
+  else { /* p < buffer_end */
+    size_t last_frame_size = buffer_end - p;
+    memmove(buffer, p, last_frame_size);
+    return last_frame_size;
+  }
+}
+
+static void uart_loop(int fd,
+                      void (*callback)(const unsigned char *,
+                                       enum event,
+                                       size_t))
+{
+  unsigned char buf[UART_BUFFER_SIZE];
+  size_t start = 0;
+  fd_set rfds;
+
+  /* We just setup file descriptor set and issue the first wait message. */
   FD_ZERO(&rfds);
   FD_SET(fd, &rfds);
 
   wait_message();
 
+  /* And now we can loop for events. */
   while(1) {
+    int ret;
+    size_t size; /* FIXME: Should be a signed type ssize_t. */
     struct timeval tv = { .tv_sec  = 0,
                           .tv_usec = 200000 };
-    int ret = select(fd + 1, &rfds, NULL, NULL, &tv);
+
+    /* Wait for something to read. */
+    ret = select(fd + 1, &rfds, NULL, NULL, &tv);
 
     if(ret < 0) {
       /* signal caught */
@@ -93,14 +155,14 @@ void start_uart(const char *path,
         continue;
       err(EXIT_FAILURE, "cannot select");
     }
-
     else if(!ret) {
       FD_SET(fd, &rfds);
       wait_message();
       continue;
     }
 
-    size = read(fd, buf, sizeof(buf));
+    /* Fill the buffer. */
+    size = read(fd, buf + start, sizeof(buf) - start);
 
     if(size <= 0) {
       /* signal caught */
@@ -109,8 +171,23 @@ void start_uart(const char *path,
       err(EXIT_FAILURE, "cannot read");
     }
 
-
-    clear_message();
-    callback(buf, size);
+    /* This will parse the entire buffer and copy
+       the last incomplete frame at the beginning. */
+    start = parse_uart_buffer(buf, size + start, callback);
   }
+}
+
+void start_uart(const char *path,
+                speed_t speed,
+                void (*callback)(const unsigned char *,
+                                 enum event,
+                                 size_t))
+{
+  int fd;
+
+  /* open and setup the serial line */
+  fd = open_uart(path, speed);
+
+  /* start the main loop */
+  uart_loop(fd, callback);
 }
