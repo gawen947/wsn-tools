@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-10 20:08:17 gawen>
+   Time-stamp: <2013-03-11 00:00:03 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -142,7 +142,7 @@ static void uart_loop(int fd,
   /* And now we can loop for events. */
   while(1) {
     int ret;
-    size_t size; /* FIXME: Should be a signed type ssize_t. */
+    ssize_t size;
     struct timeval tv = { .tv_sec  = 0,
                           .tv_usec = 200000 };
 
