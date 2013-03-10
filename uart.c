@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-11 00:00:03 gawen>
+   Time-stamp: <2013-03-11 00:24:45 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -170,6 +170,14 @@ static void uart_loop(int fd,
         continue;
       err(EXIT_FAILURE, "cannot read");
     }
+
+#ifndef NDEBUG
+    /* This doesn't mean that we will drop frames but instead that the kernel
+       will buffer them for us. It is unlikely that the kernel will have to drop
+       anything but it may vary with the nature of the stdout file descriptor. */
+    if(size == (sizeof(buf) - start))
+      warnx("input buffer full");
+#endif /* NDEBUG */
 
     /* This will parse the entire buffer and copy
        the last incomplete frame at the beginning. */
