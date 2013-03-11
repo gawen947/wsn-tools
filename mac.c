@@ -258,8 +258,6 @@ void mac_display(const struct mac_frame *frame, unsigned int info)
     display_addr((frame->control & MC_DAM) >> MC_DAM_SHR, &frame->dst);
   }
 
-  if(frame->security && info & MI_SECURITY) {
-    printf(" Security not implemented");
-    return;
-  }
+  if(frame->security && info & MI_SECURITY)
+    printf(" Security not implemented\n");
 }
