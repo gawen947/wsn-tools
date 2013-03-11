@@ -4,11 +4,9 @@ WSN-Sniffer-CLI
 This is a client for a transceiver used as a sniffer in IEEE 802.15.4 Wireless
 Sensor Networks. This program reads frames from the transceiver with UART and
 displays them live and decoded to the user. It can also write frames into a PCAP
-file.
-
-The sniffer can be adapted to various transceiver as long as they can write raw
-frames to UART. The transceiver can also send general informations which will be
-printed on the terminal by prefixing text messages with the 0xfe byte.
+file. The sniffer can be adapted to various transceiver as long as they can
+write raw frames to UART. The transceiver can also send general informations
+which will be printed on the terminal.
 
 Each frame or information string needs to be prefixed by an information byte
 which contains its size. This size will always be less than 127 bytes. The
@@ -59,5 +57,3 @@ the sniffer firmware.
         /* Sends a frame to the client. */
         send_frame(frame, frame_size, send_on_uart);
     }
-
-
