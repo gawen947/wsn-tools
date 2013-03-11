@@ -7,14 +7,19 @@ displays them live and decoded to the user. It can also write frames into a PCAP
 file.
 
 The sniffer can be adapted to various transceiver as long as they can write raw
-frames to UART. Each frame needs to be prefixed by the 0xff byte and separated
-in time with a short inter-frame delay to ensure that the sniffer client parses
-one frame at a time. The transceiver can also send general informations which
-will be printed on the terminal by prefixing text messages with the 0xfe byte.
+frames to UART. The transceiver can also send general informations which will be
+printed on the terminal by prefixing text messages with the 0xfe byte.
 
-Take note that the serial port has to be configured manually. You can do that
-with either STTY, Screen or Minicom. However this may change in the future as a
-default serial port configuration will be integrated into the client.
+Each frame or information string needs to be prefixed by an information byte
+which contains its size. This size will always be less than 127 bytes. The
+highest bit specify wether the event contains a MAC frame or an information
+string. However some functions are available in the wsn-sniffer directory to
+abstract the underlying protocol between the firmware and the sniffer
+client. The help for these functions is in the corresponding header file.
+
+Take note that the line is configured automatically to 8N1 when you specify the
+baud rate in the command line. If you do not want to setup the line to 8N1 you
+have to remove the baud rate argument and set it up manually with stty.
 
 Usage examples
 --------------
@@ -33,6 +38,26 @@ a PCAP file.
 
 > wsn-sniffer-cli -p mac.pcap -PA -b 115200 /dev/ttyUSB1
 
+Firmware example
+----------------
 
+The following is a basic example of how you may use the helper functions within
+the sniffer firmware.
+
+    #include "wsn-sniffer.h"
+
+    /* Sends data on UART. */
+    static void send_on_uart(const unsigned char *data, unsigned int size);
+
+    void start()
+    {
+        (...)
+
+        /* Sends an information message to the client. */
+        send_info("Hello world!\n", send_on_uart);
+
+        /* Sends a frame to the client. */
+        send_frame(frame, frame_size, send_on_uart);
+    }
 
 
