@@ -1,5 +1,5 @@
 /* File: mac.c
-   Time-stamp: <2013-03-04 10:59:09 gawen>
+   Time-stamp: <2013-03-11 01:15:37 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -74,6 +74,10 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
 {
   const unsigned char *raw = raw_frame;
 
+  /* We have to initialize the payload to avoid
+     a buffer overflow with crafted frames. */
+  frame->payload = NULL;
+
   frame->control = le16toh(U8_TO(uint16_t, raw));
   raw += sizeof(uint16_t);
 
@@ -90,10 +94,7 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
                         (frame->control & MC_PANCOMP) ? &frame->dst.pan : NULL);
 
   if(frame->control & MC_SECURITY) {
-    /* Auxiliary security header are not implemented.
-       However we have to initialize the payload to
-       avoid a buffer overflow with crafted frames. */
-    frame->payload = NULL;
+    /* Auxiliary security headers are not implemented. */
     return -1;
   }
 
@@ -101,6 +102,13 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
 
   frame->payload  = raw;
   frame->size     = size - sizeof(uint16_t) - (raw - raw_frame);
+
+  /* Check for an overflow which may arise with crafted frames.
+     That is minus one converted to unsigned int which would.
+     result in a very large payload. */
+  if(frame->size > 0xff)
+    frame->payload = NULL;
+
   raw += frame->size;
 
   CHECK(raw_frame, raw, size);
