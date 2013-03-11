@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-11 00:42:13 gawen>
+   Time-stamp: <2013-03-11 01:57:05 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -69,6 +69,12 @@ static int open_uart(const char *path, speed_t speed)
       err(EXIT_FAILURE, "cannot get tty attributes");
 
     cfsetspeed(&options, speed);
+
+    /* setup the serial line in 8N1 */
+    options.c_cflag &= ~CSIZE;
+    options.c_cflag |= CS8;     /* 8 data bits */
+    options.c_cflag &= ~CSTOPB; /* 1 stop bit */
+    options.c_cflag &= ~PARENB; /* no partity */
 
     if(tcsetattr(fd, TCSANOW, &options) < 0)
       err(EXIT_FAILURE, "cannot set tty attributes");
