@@ -8,6 +8,10 @@ SRC  = $(wildcard *.c)
 OBJ  = $(foreach obj, $(SRC:.c=.o), $(notdir $(obj)))
 DEP  = $(SRC:.c=.d)
 
+TARGETS     = wsn-sniffer-cli
+
+SNIFFER_OBJ = dump.o help.o mac.o pcap.o uart-input.o uart.o wsn-sniffer-cli.o
+
 PREFIX  ?= /usr/local
 BIN     ?= /bin
 
@@ -27,9 +31,9 @@ endif
 
 .PHONY: all clean
 
-all: wsn-sniffer-cli
+all: $(TARGETS)
 
-wsn-sniffer-cli: $(OBJ)
+wsn-sniffer-cli: $(SNIFFER_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
@@ -39,7 +43,7 @@ clean:
 	$(RM) $(DEP)
 	$(RM) $(OBJ)
 	$(RM) $(CATALOGS)
-	$(RM) wsn-sniffer-cli
+	$(RM) $(TARGETS)
 
 install:
 	$(MKDIR) -p $(DESTDIR)/$(PREFIX)/$(BIN)
