@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-13 18:49:25 gawen>
+   Time-stamp: <2013-03-13 21:17:05 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -28,7 +28,7 @@
 
 int open_uart(const char *path, speed_t speed, mode_t mode)
 {
-  struct termios options;
+  struct termios options = { 0 };
   int fd;
 
   fd = open(path, mode | O_NOCTTY);
@@ -42,16 +42,13 @@ int open_uart(const char *path, speed_t speed, mode_t mode)
 
   /* we only setup the speed if requested */
   if(speed != B0) {
-    if(tcgetattr(fd, &options) < 0)
-      err(EXIT_FAILURE, "cannot get tty attributes");
-
     cfsetspeed(&options, speed);
 
-    /* setup the serial line in 8N1 */
-    options.c_cflag &= ~CSIZE;
-    options.c_cflag |= CS8;     /* 8 data bits */
-    options.c_cflag &= ~CSTOPB; /* 1 stop bit */
-    options.c_cflag &= ~PARENB; /* no partity */
+    /* This setup the serial line in 8N1 and break input.
+       We don't need to clear any other bits since we
+       zeroed the termios structure at initialization. */
+    options.c_iflag |= IGNBRK;
+    options.c_cflag |= CS8;
 
     if(tcsetattr(fd, TCSANOW, &options) < 0)
       err(EXIT_FAILURE, "cannot set tty attributes");
