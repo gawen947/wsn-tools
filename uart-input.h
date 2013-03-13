@@ -1,5 +1,5 @@
-/* File: uart.h
-   Time-stamp: <2013-03-13 18:57:26 gawen>
+/* File: uart-input.h
+   Time-stamp: <2013-03-13 03:07:36 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,17 +16,18 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _UART_H_
-#define _UART_H_
+#ifndef _UART_INPUT_H_
+#define _UART_INPUT_H_
 
-#include <sys/types.h>
+#include <stdlib.h>
 #include <termios.h>
 
-/* Open and setup the serial line and return a file descriptor to the serial
-   line. The line will be left untouched if the speed is B0. Otherwise it will
-   use a default configuration for the line (8N1). The mode argument allows you
-   to specify the access mode and must includes one of the following: O_RDONLY,
-   O_WRONLY or O_RDWR. */
-int open_uart(const char *path, speed_t speed, mode_t mode);
+#include "event.h"
 
-#endif /* _UART_H_ */
+void uart_input_loop(const char *path,
+                     speed_t speed,
+                     void (*callback)(const unsigned char *data,
+                                      enum event event_type,
+                                      size_t size));
+
+#endif /* _UART_INPUT_H_ */

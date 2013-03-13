@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-10 23:40:34 gawen>
+   Time-stamp: <2013-03-13 03:13:50 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -29,11 +29,11 @@
 #include <err.h>
 
 #include "mac.h"
-#include "uart.h"
 #include "pcap.h"
 #include "dump.h"
 #include "help.h"
 #include "event.h"
+#include "uart-input.h"
 
 #define PACKAGE "wsn-sniffer-cli"
 
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
   sigaction(SIGINT, &act, NULL);
   atexit(cleanup);
 
-  start_uart(tty, speed, event);
+  uart_input_loop(tty, speed, event);
 
 EXIT:
   return exit_status;
