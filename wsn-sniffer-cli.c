@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-14 16:56:01 gawen>
+   Time-stamp: <2013-03-14 23:36:39 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <err.h>
 
+#include "version.h"
 #include "pcap.h"
 #include "dump.h"
 #include "help.h"
@@ -36,17 +37,7 @@
 #include "mac-decode.h"
 #include "mac-display.h"
 
-#define PACKAGE "wsn-sniffer-cli"
-
-#ifndef VERSION
-# define VERSION "unk"
-#endif /* VERSION */
-
-#if !(defined COMMIT && defined PARTIAL_COMMIT)
-# define PACKAGE_VERSION "v" VERSION
-#else
-# define PACKAGE_VERSION "v" VERSION " (commit: " PARTIAL_COMMIT ")"
-#endif /* COMMIT */
+#define TARGET "Sniffer-CLI"
 
 static bool payload;
 static unsigned int mac_info;
@@ -227,7 +218,7 @@ int main(int argc, char *argv[])
       /* TODO: payload_info = PI_ALL */
       break;
     case('V'):
-      printf(PACKAGE " " PACKAGE_VERSION "\n");
+      version(TARGET);
       exit_status = EXIT_SUCCESS;
       goto EXIT;
     case('h'):
