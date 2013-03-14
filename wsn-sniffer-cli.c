@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-13 03:13:50 gawen>
+   Time-stamp: <2013-03-14 16:56:01 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -28,12 +28,13 @@
 #include <unistd.h>
 #include <err.h>
 
-#include "mac.h"
 #include "pcap.h"
 #include "dump.h"
 #include "help.h"
 #include "event.h"
 #include "uart-input.h"
+#include "mac-decode.h"
+#include "mac-display.h"
 
 #define PACKAGE "wsn-sniffer-cli"
 

@@ -1,5 +1,5 @@
-/* File: common.h
-   Time-stamp: <2013-02-06 01:12:39 gawen>
+/* File: mac-display.h
+   Time-stamp: <2013-03-14 16:52:41 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,12 +16,13 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef _MAC_DISPLAY_H_
+#define _MAC_DISPLAY_H_
 
-#include <endian.h>
+#include "mac.h"
 
-#define U8_TO(type, ptr) *((type *)(ptr))
-#define S_BOOLEAN(a) ((a) ? "yes" : "no")
+/* Display a decoded IEEE 802.15.4 MAC frame. The info flag selects fields of
+   the MAC frame to display. */
+void mac_display(const struct mac_frame *frame, unsigned int info);
 
-#endif /* _COMMON_H_ */
+#endif /* _MAC_DISPLAY_H_ */

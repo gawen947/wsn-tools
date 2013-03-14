@@ -1,5 +1,5 @@
-/* File: common.h
-   Time-stamp: <2013-02-06 01:12:39 gawen>
+/* File: mac-decode.h
+   Time-stamp: <2013-03-14 16:48:13 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,12 +16,14 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef _MAC_DECODE_H_
+#define _MAC_DECODE_H_
 
-#include <endian.h>
+#include "mac.h"
 
-#define U8_TO(type, ptr) *((type *)(ptr))
-#define S_BOOLEAN(a) ((a) ? "yes" : "no")
+/* Decode an IEEE 802.15.4 MAC frame. Return a negative number if an error
+   occured. */
+int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
+               unsigned int size);
 
-#endif /* _COMMON_H_ */
+#endif /* _MAC_DECODE_H_ */

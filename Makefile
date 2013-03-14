@@ -10,7 +10,7 @@ DEP  = $(SRC:.c=.d)
 
 TARGETS     = wsn-sniffer-cli
 
-SNIFFER_OBJ = dump.o help.o mac.o pcap.o uart-input.o uart.o wsn-sniffer-cli.o
+SNIFFER_OBJ = dump.o help.o mac-display.o mac-decode.o pcap.o uart-input.o uart.o wsn-sniffer-cli.o
 
 PREFIX  ?= /usr/local
 BIN     ?= /bin

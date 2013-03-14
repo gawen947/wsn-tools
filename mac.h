@@ -1,5 +1,5 @@
 /* File: mac.h
-   Time-stamp: <2013-03-02 19:27:11 gawen>
+   Time-stamp: <2013-03-14 16:52:47 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -77,15 +77,5 @@ struct mac_frame {
 
   uint16_t fcs;         /* 16-bit CRC (not used) */
 };
-
-/* Decode an IEEE 802.15.4 MAC frame. Return a negative number if an error
-   occured. */
-int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
-               unsigned int size);
-
-/* Display a decoded IEEE 802.15.4 MAC frame. The info flag selects fields of
-   the MAC frame to display. */
-void mac_display(const struct mac_frame *frame, unsigned int info);
-
 
 #endif /* _MAC_H_ */
