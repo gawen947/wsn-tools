@@ -1,5 +1,5 @@
 /* File: version.c
-   Time-stamp: <2013-03-14 23:34:58 gawen>
+   Time-stamp: <2013-03-15 17:31:29 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -24,3 +24,10 @@ void version(const char *target)
 {
   printf("%s from " PACKAGE_VERSION "\n", target);
 }
+
+#ifdef COMMIT
+void commit(void)
+{
+  printf("Commit-Id SHA1 : " COMMIT "\n");
+}
+#endif /* COMMIT */

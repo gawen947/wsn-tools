@@ -1,5 +1,5 @@
 /* File: version.h
-   Time-stamp: <2013-03-14 23:34:40 gawen>
+   Time-stamp: <2013-03-15 17:31:58 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -32,5 +32,9 @@
 #endif /* COMMIT */
 
 void version(const char *target);
+
+#ifdef COMMIT
+void commit(void);
+#endif /* COMMIT */
 
 #endif /* _VERSION_H_ */
