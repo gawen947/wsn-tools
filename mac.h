@@ -37,7 +37,7 @@ enum mac_info { MI_CONTROL = 0x1, /* display frame control */
 #define MC_RESERVED     0x380   /* reserved */
 #define MC_RESERVED_SHR 7       /* reserved (shift right) */
 #define MC_DAM          0xc00   /* destination addressing mode */
-#define MC_DAM_SHR      10       /* destination addressing mode (shift right) */
+#define MC_DAM_SHR      10      /* destination addressing mode (shift right) */
 #define MC_VERSION      0x3000  /* frame version */
 #define MC_VERSION_SHR  12      /* frame version (shift right) */
 #define MC_SAM          0xc000  /* source addressing mode */
