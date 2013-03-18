@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-14 23:36:39 gawen>
+   Time-stamp: <2013-03-18 20:43:26 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -142,11 +142,15 @@ int main(int argc, char *argv[])
   name = (const char *)strrchr(argv[0], '/');
   name = name ? (name + 1) : argv[0];
 
+  enum opt {
+    OPT_COMMIT = 0x100
+  };
+
   struct opt_help helps[] = {
     { 'h', "help", "Show this help message" },
     { 'V', "version", "Print version information" },
 #ifdef COMMIT
-    { 'C', "commit", "Display commit information" },
+    { 0, "commit", "Display commit information" },
 #endif /* COMMIT */
     { 'b', "baud", "Specify the baud rate"},
     { 'p', "pcap", "Save packets in the specified PCAP file" },
@@ -164,7 +168,7 @@ int main(int argc, char *argv[])
     { "help", no_argument, NULL, 'h' },
     { "version", no_argument, NULL, 'V' },
 #ifdef COMMIT
-    { "commit", no_argument, NULL, 'C' },
+    { "commit", no_argument, NULL, OPT_COMMIT },
 #endif /* COMMIT */
     { "baud", required_argument, NULL, 'b' },
     { "pcap", required_argument, NULL, 'p' },
@@ -179,11 +183,7 @@ int main(int argc, char *argv[])
   };
 
   while(1) {
-#ifndef COMMIT
     int c = getopt_long(argc, argv, "hVp:cb:saSMPA", opts, NULL);
-#else
-    int c = getopt_long(argc, argv, "hCVp:cb:saSMPA", opts, NULL);
-#endif /* COMMIT */
 
     if(c == -1)
       break;
@@ -217,6 +217,12 @@ int main(int argc, char *argv[])
       mac_info = MI_ALL;
       /* TODO: payload_info = PI_ALL */
       break;
+#ifdef COMMIT
+    case(OPT_COMMIT):
+      commit();
+      exit_status = EXIT_SUCCESS;
+      goto EXIT;
+#endif /* COMMIT */
     case('V'):
       version(TARGET);
       exit_status = EXIT_SUCCESS;
