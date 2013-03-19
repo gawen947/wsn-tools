@@ -20,10 +20,6 @@
 
 #include "atoi-gen.h"
 
-#define SYMBOLS "0123456789"                 \
-                "abcdefghijklmnopqrstuvwxyz"
-
-
 static unsigned int symbol_value(char c)
 {
   /* digit */
