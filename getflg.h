@@ -1,5 +1,5 @@
 /* File: getflg.h
-   Time-stamp: <2013-03-18 03:48:10 gawen>
+   Time-stamp: <2013-03-19 00:31:27 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -32,13 +32,13 @@ typedef uint32_t flags_t;
 
 
 #define GET_BIT(flags, bit) \
-  flags[bit / FLAGS_CHUNK_SIZE]  &  ((flags_t)1 << (bit % FLAGS_CHUNK_SIZE))
+  (flags)[bit / FLAGS_CHUNK_SIZE]  &  ((flags_t)1 << (bit % FLAGS_CHUNK_SIZE))
 
-#define SET_BIT(flags, val) \
-  flags[bit / FLAGS_CHUNK_SIZE] |=   (flags_t)1 << (bit % FLAGS_CHUNK_SIZE)
+#define SET_BIT(flags, bit) \
+  (flags)[bit / FLAGS_CHUNK_SIZE] |=   (flags_t)1 << (bit % FLAGS_CHUNK_SIZE)
 
-#define CLEAR_BIT(flags, val) \
-  flags[bit / FLAGS_CHUNK_SIZE] &= ~((flags_t)1 << (bit % FLAGS_CHUNK_SIZE))
+#define CLEAR_BIT(flags, bit) \
+  (flags)[bit / FLAGS_CHUNK_SIZE] &= ~((flags_t)1 << (bit % FLAGS_CHUNK_SIZE))
 
 
 struct flag_option {
