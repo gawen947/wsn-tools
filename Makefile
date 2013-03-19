@@ -8,9 +8,10 @@ SRC  = $(wildcard *.c)
 OBJ  = $(foreach obj, $(SRC:.c=.o), $(notdir $(obj)))
 DEP  = $(SRC:.c=.d)
 
-TARGETS     = wsn-sniffer-cli
+TARGETS     = wsn-sniffer-cli wsn-injector-cli
 
 SNIFFER_OBJ = version.o dump.o help.o mac-display.o mac-decode.o pcap.o uart-input.o uart.o wsn-sniffer-cli.o
+INJECTOR_OBJ = version.o getflg.o atoi-gen.o help.o wsn-injector-cli.o
 
 PREFIX  ?= /usr/local
 BIN     ?= /bin
@@ -34,6 +35,9 @@ endif
 all: $(TARGETS)
 
 wsn-sniffer-cli: $(SNIFFER_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+wsn-injector-cli: $(INJECTOR_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
