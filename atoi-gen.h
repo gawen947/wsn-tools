@@ -1,5 +1,5 @@
 /* File: atoi-gen.h
-   Time-stamp: <2013-03-21 00:04:56 gawen>
+   Time-stamp: <2013-03-21 00:27:10 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -30,14 +30,14 @@
 int atoi_gen(const char *s);
 
 /* This function will parse an hexadecimal string stopping at the first
-   occurence of a character in the delim string. It will then store the
-   delimiter character found in the delim_found argument. If the zero_message is
-   not specified, the null terminator will be accepted as a valid
-   delimiter. Otherwise the zero_message will be used to quit the program with
-   an error when the null terminator is encountered. This function will also
-   check for valid hexadecimal characters and will report an error if the
-   character is invalid. */
-unsigned int parse_hex_until(const char *s, const char *delim,
-                             char *delim_found, const char *zero_message);
+   occurence of a character in the delim string. It will then the value parsed
+   until this delimiter in the v argument and return a pointer to the delimiter
+   in the string. If the zero_message is not specified, the null terminator will
+   be accepted as a valid delimiter. Otherwise the zero_message will be used to
+   quit the program with an error when the null terminator is encountered. This
+   function will also check for valid hexadecimal characters and will report an
+   error if the character is invalid. */
+const char * parse_hex_until(const char *s, const char *delim,
+                             unsigned int *v, const char *zero_message);
 
 #endif /* _ATOI_GEN_H_ */

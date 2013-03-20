@@ -1,5 +1,5 @@
 /* File: atoi_u.c
-   Time-stamp: <2013-03-21 00:07:20 gawen>
+   Time-stamp: <2013-03-21 00:25:40 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -100,18 +100,16 @@ static bool ishex(char c)
   return false;
 }
 
-unsigned int parse_hex_until(const char *s, const char *delim,
-                             char *delim_found, const char *zero_message)
+const char * parse_hex_until(const char *s, const char *delim,
+                             unsigned int *v, const char *zero_message)
 {
   unsigned int val = 0;
   const char *d;
 
   for(; *s != '\0' ; s++) {
     d = strchr(delim, *s);
-    if(d) {
-      *delim_found = *d;
-      return val;
-    }
+    if(d)
+      goto EXIT;
 
     if(!ishex(*s))
       errx(EXIT_FAILURE, "expect an hexadecimal value");
@@ -120,10 +118,10 @@ unsigned int parse_hex_until(const char *s, const char *delim,
     val += symbol_value(*s);
   }
 
-  if(!zero_message) {
-    *delim_found = '\0';
-    return val;
-  }
-  else
+  if(zero_message)
     errx(EXIT_FAILURE, "%s: premature ending", zero_message);
+
+EXIT:
+  *v = val;
+  return s;
 }
