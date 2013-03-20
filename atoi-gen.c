@@ -1,5 +1,5 @@
 /* File: atoi_u.c
-   Time-stamp: <2013-03-19 03:17:07 gawen>
+   Time-stamp: <2013-03-21 00:07:20 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,7 +16,11 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdbool.h>
+#include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
+#include <err.h>
 
 #include "atoi-gen.h"
 
@@ -85,4 +89,41 @@ int atoi_gen(const char *s)
 
 RESULT:
   return val * sgn;
+}
+
+static bool ishex(char c)
+{
+  if((c >= '0' && c <= '9') ||
+     (c >= 'A' && c <= 'F') ||
+     (c >= 'a' && c <= 'f'))
+    return true;
+  return false;
+}
+
+unsigned int parse_hex_until(const char *s, const char *delim,
+                             char *delim_found, const char *zero_message)
+{
+  unsigned int val = 0;
+  const char *d;
+
+  for(; *s != '\0' ; s++) {
+    d = strchr(delim, *s);
+    if(d) {
+      *delim_found = *d;
+      return val;
+    }
+
+    if(!ishex(*s))
+      errx(EXIT_FAILURE, "expect an hexadecimal value");
+
+    val <<= 4;
+    val += symbol_value(*s);
+  }
+
+  if(!zero_message) {
+    *delim_found = '\0';
+    return val;
+  }
+  else
+    errx(EXIT_FAILURE, "%s: premature ending", zero_message);
 }
