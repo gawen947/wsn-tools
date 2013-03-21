@@ -1,5 +1,5 @@
 /* File: uart.h
-   Time-stamp: <2013-03-13 18:57:26 gawen>
+   Time-stamp: <2013-03-21 13:32:19 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -28,5 +28,8 @@
    to specify the access mode and must includes one of the following: O_RDONLY,
    O_WRONLY or O_RDWR. */
 int open_uart(const char *path, speed_t speed, mode_t mode);
+
+/* Convert a string to a serial speed. */
+speed_t baud(const char *arg);
 
 #endif /* _UART_H_ */

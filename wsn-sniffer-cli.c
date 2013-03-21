@@ -33,6 +33,7 @@
 #include "dump.h"
 #include "help.h"
 #include "event.h"
+#include "uart.h"
 #include "uart-input.h"
 #include "mac-decode.h"
 #include "mac-display.h"
@@ -83,39 +84,6 @@ static void event(const unsigned char *data, enum event event_type, size_t size)
 #endif /* NDEBUG */
     break;
   }
-}
-
-static speed_t baud(const char *arg)
-{
-  const struct {
-    int     intval;
-    speed_t baud;
-  } *b, bauds[] = {
-    { 230400, B230400 },
-    { 115200, B115200 },
-    { 57600, B57600 },
-    { 38400, B38400 },
-    { 19200, B19200 },
-    { 9600, B9600 },
-    { 4800, B4800 },
-    { 2400, B2400 },
-    { 1800, B1800 },
-    { 1200, B1200 },
-    { 300, B300 },
-    { 200, B200 },
-    { 150, B150 },
-    { 134, B134 },
-    { 110, B110 },
-    { 75, B75 },
-    { 50, B50 },
-    { 0,  B0 }};
-
-  int arg_val = atoi(arg);
-  for(b = bauds; b->intval ; b++)
-    if(b->intval == arg_val)
-      return b->baud;
-
-  errx(EXIT_FAILURE, "unrecognized speed");
 }
 
 static void cleanup(void)

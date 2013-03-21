@@ -1,5 +1,5 @@
 /* File: uart.c
-   Time-stamp: <2013-03-13 21:17:05 gawen>
+   Time-stamp: <2013-03-21 13:30:56 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -25,6 +25,39 @@
 #include <termios.h>
 #include <unistd.h>
 #include <err.h>
+
+speed_t baud(const char *arg)
+{
+  const struct {
+    int     intval;
+    speed_t baud;
+  } *b, bauds[] = {
+    { 230400, B230400 },
+    { 115200, B115200 },
+    { 57600, B57600 },
+    { 38400, B38400 },
+    { 19200, B19200 },
+    { 9600, B9600 },
+    { 4800, B4800 },
+    { 2400, B2400 },
+    { 1800, B1800 },
+    { 1200, B1200 },
+    { 300, B300 },
+    { 200, B200 },
+    { 150, B150 },
+    { 134, B134 },
+    { 110, B110 },
+    { 75, B75 },
+    { 50, B50 },
+    { 0,  B0 }};
+
+  int arg_val = atoi(arg);
+  for(b = bauds; b->intval ; b++)
+    if(b->intval == arg_val)
+      return b->baud;
+
+  errx(EXIT_FAILURE, "unrecognized speed");
+}
 
 int open_uart(const char *path, speed_t speed, mode_t mode)
 {
