@@ -1,5 +1,5 @@
 /* File: atoi_u.c
-   Time-stamp: <2013-03-21 00:25:40 gawen>
+   Time-stamp: <2013-03-21 15:10:28 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <assert.h>
 #include <err.h>
 
 #include "atoi-gen.h"
@@ -101,25 +102,28 @@ static bool ishex(char c)
 }
 
 const char * parse_hex_until(const char *s, const char *delim,
-                             unsigned int *v, const char *zero_message)
+                             unsigned int *v, const char *error_message,
+                             bool accept_zero)
 {
   unsigned int val = 0;
   const char *d;
+
+  if(!ishex(*s))
+    errx(EXIT_FAILURE,"%s: expect an hexadecimal value", error_message);
 
   for(; *s != '\0' ; s++) {
     d = strchr(delim, *s);
     if(d)
       goto EXIT;
-
     if(!ishex(*s))
-      errx(EXIT_FAILURE, "expect an hexadecimal value");
+      errx(EXIT_FAILURE, "%s: expect an hexadecimal value", error_message);
 
     val <<= 4;
     val += symbol_value(*s);
   }
 
-  if(zero_message)
-    errx(EXIT_FAILURE, "%s: premature ending", zero_message);
+  if(!accept_zero)
+    errx(EXIT_FAILURE, "%s: premature ending", error_message);
 
 EXIT:
   *v = val;

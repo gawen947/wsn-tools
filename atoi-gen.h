@@ -1,5 +1,5 @@
 /* File: atoi-gen.h
-   Time-stamp: <2013-03-21 00:27:10 gawen>
+   Time-stamp: <2013-03-21 15:11:17 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -19,6 +19,8 @@
 #ifndef _ATOI_GEN_H_
 #define _ATOI_GEN_H_
 
+#include <stdbool.h>
+
 /* This generic atoi function understand number written in different bases. By
    default it will assume a decimal base. If the string is prefixed with 0x or
    0X it will assume an hexadecimal base. If the string is prefixed with 0b or
@@ -32,12 +34,12 @@ int atoi_gen(const char *s);
 /* This function will parse an hexadecimal string stopping at the first
    occurence of a character in the delim string. It will then the value parsed
    until this delimiter in the v argument and return a pointer to the delimiter
-   in the string. If the zero_message is not specified, the null terminator will
-   be accepted as a valid delimiter. Otherwise the zero_message will be used to
-   quit the program with an error when the null terminator is encountered. This
+   in the string. If the accept_zero flag is specified, the null terminator will
+   be accepted as a valid delimiter. Otherwise an error will be reported. This
    function will also check for valid hexadecimal characters and will report an
    error if the character is invalid. */
 const char * parse_hex_until(const char *s, const char *delim,
-                             unsigned int *v, const char *zero_message);
+                             unsigned int *v, const char *error_message,
+                             bool accept_zero);
 
 #endif /* _ATOI_GEN_H_ */
