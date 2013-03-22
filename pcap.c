@@ -1,5 +1,5 @@
 /* File: pcap.c
-   Time-stamp: <2013-03-06 19:39:39 gawen>
+   Time-stamp: <2013-03-22 22:59:39 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -17,11 +17,12 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <sys/time.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <err.h>
+
+#include "iobuf.h"
 
 /* Informations about the PCAP file format came from:
    http://wiki.wireshark.org/Development/LibpcapFileFormat */
@@ -32,12 +33,12 @@
 
 #define LINKTYPE_IEEE802_15_4 195
 
-static FILE *pcap;
+static iofile_t pcap;
 
 #define WRITE(size)                                               \
   static void write ## size (uint ## size ## _t value) {          \
-    size_t n = fwrite(&value, sizeof(value), 1, pcap);            \
-    if(n != 1)                                                    \
+    ssize_t n = iobuf_write(pcap, &value, sizeof(value));         \
+    if(n != size)                                                 \
       err(EXIT_FAILURE, "cannot write to pcap file");             \
   }
 
@@ -50,7 +51,7 @@ void init_pcap(const char *path)
            Well we could do this but will have to take
            care of endianness. We can also do a tool
            to merge PCAP files (which I will do later). */
-  pcap = fopen(path, "w");
+  pcap = iobuf_open(path, O_RDONLY, 0);
 
   if(!pcap)
     err(EXIT_FAILURE, "cannot open pcap file");
@@ -66,7 +67,7 @@ void init_pcap(const char *path)
 
 void append_frame(const unsigned char *frame, unsigned int size)
 {
-  size_t n;
+  ssize_t n;
   struct timeval tv;
 
   /* If the pcap was not initialized we do nothing. */
@@ -84,13 +85,13 @@ void append_frame(const unsigned char *frame, unsigned int size)
   write32(size);       /* number of octets of packet saved in file */
   write32(size);       /* actual length of packet */
 
-  n = fwrite(frame, size, 1, pcap);
-  if(n != 1)
+  n = iobuf_write(pcap, frame, size);
+  if(n != size)
     err(EXIT_FAILURE, "cannot write to pcap file");
 }
 
 void destroy_pcap(void)
 {
   if(pcap)
-    fclose(pcap);
+    iobuf_close(pcap);
 }
