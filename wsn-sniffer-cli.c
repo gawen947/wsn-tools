@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-22 01:06:49 gawen>
+   Time-stamp: <2013-03-22 20:16:00 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -73,6 +73,10 @@ static void event(const unsigned char *data, enum event event_type, size_t size)
     /* Append the frame to the PCAP file. */
     append_frame(data, size);
 
+    /* FIXME: This particular free call may be spared if we provided a way for
+       mac_decode to avoid copying the payload. */
+    free_mac_frame(&frame);
+
     break;
   case(EV_INFO):
     write(STDOUT_FILENO, data, size);
@@ -84,10 +88,6 @@ static void event(const unsigned char *data, enum event event_type, size_t size)
 #endif /* NDEBUG */
     break;
   }
-
-  /* FIXME: This particular free call may be spared if we provided a way for
-     mac_decode to avoid copying the payload. */
-  free_mac_frame(&frame);
 }
 
 static void cleanup(void)
