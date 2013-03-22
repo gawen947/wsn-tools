@@ -1,5 +1,5 @@
 /* File: mac.h
-   Time-stamp: <2013-03-14 16:52:47 gawen>
+   Time-stamp: <2013-03-22 00:54:20 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

@@ -1,5 +1,5 @@
 /* File: mac-decode.c
-   Time-stamp: <2013-03-14 16:46:23 gawen>
+   Time-stamp: <2013-03-22 00:59:35 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <endian.h>
+#include <string.h>
 #include <assert.h>
 
 #include "mac.h"
@@ -68,6 +69,16 @@ static int decode_address(struct mac_addr *addr, enum mac_addr_mode mode,
   return raw - raw_frame;
 }
 
+static void copy_payload(struct mac_frame *frame, const unsigned char *raw,
+                         unsigned int size)
+{
+  if(frame->payload)
+    free((void *)frame->payload);
+  frame->payload = malloc(size);
+  memcpy((void *)frame->payload, raw, size);
+  frame->size    = size;
+}
+
 int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
                unsigned int size)
 {
@@ -99,8 +110,7 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
 
   frame->security = NULL;
 
-  frame->payload  = raw;
-  frame->size     = size - sizeof(uint16_t) - (raw - raw_frame);
+  copy_payload(frame, raw, size - sizeof(uint16_t) - (raw - raw_frame));
 
   /* Check for an overflow which may arise with crafted frames.
      That is minus one converted to unsigned int which would.
@@ -115,4 +125,10 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
 
   CHECK(raw_frame, raw+2, size);
   return 0;
+}
+
+void free_mac_frame(struct mac_frame *frame)
+{
+  if(frame->payload)
+    free((void *)frame->payload);
 }

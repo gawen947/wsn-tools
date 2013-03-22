@@ -1,5 +1,5 @@
 /* File: mac-decode.h
-   Time-stamp: <2013-03-14 16:48:13 gawen>
+   Time-stamp: <2013-03-22 01:01:38 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -25,5 +25,8 @@
    occured. */
 int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
                unsigned int size);
+
+/* Free internal data associated to a decoded mac frame. */
+void free_mac_frame(struct mac_frame *frame);
 
 #endif /* _MAC_DECODE_H_ */
