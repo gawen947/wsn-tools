@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 22:10:06 gawen>
+   Time-stamp: <2013-03-24 00:07:09 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -462,6 +462,23 @@ static void setup_default_frame(struct mac_frame *frame)
   frame->fcs      = 0;
 }
 
+static void write_to_file(const char *filename, const char *error,
+                          const unsigned char *data, unsigned int size)
+{
+  ssize_t n;
+  int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  if(fd < 0)
+    err(EXIT_FAILURE, "cannot open '%s'", filename);
+
+  n = write(fd, data, size);
+  if(n < 0)
+    err(EXIT_FAILURE, "cannot write %s", error);
+  else if(n != size)
+    errx(EXIT_FAILURE, "cannot write %s", error);
+
+  close(fd);
+}
+
 int main(int argc, char *argv[])
 {
   unsigned char frame_buffer[127];
@@ -472,6 +489,7 @@ int main(int argc, char *argv[])
   const char *name;
   const char *tty         = NULL;
   const char *frame_out   = NULL;
+  const char *payload_out = NULL;
   speed_t speed = B0;
 
   /* working frame */
@@ -495,7 +513,8 @@ int main(int argc, char *argv[])
     OPT_DACK,
     OPT_EPANCOMP,
     OPT_DPANCOMP,
-    OPT_WRITE_FRAME
+    OPT_WRITE_FRAME,
+    OPT_WRITE_PAYLOAD
   };
 
   struct opt_help helps[] = {
@@ -525,6 +544,7 @@ int main(int argc, char *argv[])
     { 0, "enable-pan-comp", "Enable the PAN-ID compression flag" },
     { 0, "disable-pan-comp", "Disable the PAN-ID compression flag" },
     { 0, "write-frame", "Write the resulting frame to a file" },
+    { 0, "write-payload", "Write the payload to a file" },
     { 0, NULL, NULL }
   };
 
@@ -555,6 +575,7 @@ int main(int argc, char *argv[])
     { "enable-pan-comp", no_argument, NULL, OPT_EPANCOMP },
     { "disable-pan-comp", no_argument, NULL, OPT_DPANCOMP },
     { "write-frame", required_argument, NULL, OPT_WRITE_FRAME },
+    { "write-payload", required_argument, NULL, OPT_WRITE_PAYLOAD },
     { NULL, 0, NULL, 0 }
   };
 
@@ -601,6 +622,9 @@ int main(int argc, char *argv[])
       break;
     case OPT_WRITE_FRAME:
       frame_out = optarg;
+      break;
+    case OPT_WRITE_PAYLOAD:
+      payload_out = optarg;
       break;
     case 's':
       setup_saddr(&frame, optarg);
@@ -675,20 +699,12 @@ int main(int argc, char *argv[])
 
 
   /* write frame if requested */
-  if(frame_out) {
-    ssize_t n;
-    int fd = open(frame_out, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if(fd < 0)
-      err(EXIT_FAILURE, "cannot open '%s'", frame_out);
+  if(frame_out)
+    write_to_file(frame_out, "frame", frame_buffer, frame_size);
 
-    n = write(fd, frame_buffer, frame_size);
-    if(n < 0)
-      err(EXIT_FAILURE, "cannot write frame");
-    else if(n != frame_size)
-      errx(EXIT_FAILURE, "cannot write frame");
-
-    close(fd);
-  }
+  /* write payload if requested */
+  if(payload_out)
+    write_to_file(payload_out, "payload", frame.payload, frame.size);
 
   exit_status = EXIT_SUCCESS;
 EXIT:
