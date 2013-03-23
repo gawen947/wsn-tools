@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 21:20:41 gawen>
+   Time-stamp: <2013-03-23 21:21:41 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -464,7 +464,8 @@ int main(int argc, char *argv[])
   bool dryrun  = false;
   bool display = false;
   const char *name;
-  const char *tty       = NULL;
+  const char *tty         = NULL;
+  const char *frame_out   = NULL;
   speed_t speed = B0;
 
   /* working frame */
@@ -487,7 +488,8 @@ int main(int argc, char *argv[])
     OPT_EACK,
     OPT_DACK,
     OPT_EPANCOMP,
-    OPT_DPANCOMP
+    OPT_DPANCOMP,
+    OPT_WRITE_FRAME
   };
 
   struct opt_help helps[] = {
@@ -516,6 +518,7 @@ int main(int argc, char *argv[])
     { 0, "disable-ack", "Disable the ACK request flag" },
     { 0, "enable-pan-comp", "Enable the PAN-ID compression flag" },
     { 0, "disable-pan-comp", "Disable the PAN-ID compression flag" },
+    { 0, "write-frame", "Write the resulting frame to a file" },
     { 0, NULL, NULL }
   };
 
@@ -545,6 +548,7 @@ int main(int argc, char *argv[])
     { "disable-ack", no_argument, NULL, OPT_DACK },
     { "enable-pan-comp", no_argument, NULL, OPT_EPANCOMP },
     { "disable-pan-comp", no_argument, NULL, OPT_DPANCOMP },
+    { "write-frame", required_argument, NULL, OPT_WRITE_FRAME },
     { NULL, 0, NULL, 0 }
   };
 
@@ -588,6 +592,9 @@ int main(int argc, char *argv[])
     case OPT_MACVER:
       strtolower(optarg);
       setup_version(&frame, optarg);
+      break;
+    case OPT_WRITE_FRAME:
+      frame_out = optarg;
       break;
     case 's':
       setup_saddr(&frame, optarg);
@@ -653,6 +660,22 @@ int main(int argc, char *argv[])
   /* display if requested */
   if(display)
     mac_display(&frame, MI_ALL);
+
+  /* write frame if requested */
+  if(frame_out) {
+    ssize_t n;
+    int fd = open(frame_out, O_WRONLY | O_CREAT | O_TRUNC);
+    if(fd < 0)
+      err(EXIT_FAILURE, "cannot open '%s'", frame_out);
+
+    n = write(fd, frame_buffer, frame_size);
+    if(n < 0)
+      err(EXIT_FAILURE, "cannot write frame");
+    else if(n != frame_size)
+      errx(EXIT_FAILURE, "cannot write frame");
+
+    close(fd);
+  }
 
   exit_status = EXIT_SUCCESS;
 EXIT:
