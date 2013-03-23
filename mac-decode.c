@@ -1,5 +1,5 @@
 /* File: mac-decode.c
-   Time-stamp: <2013-03-23 22:08:34 gawen>
+   Time-stamp: <2013-03-23 22:23:02 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -83,6 +83,7 @@ static void copy_payload(struct mac_frame *frame, const unsigned char *raw,
 int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
                bool decode_crc, unsigned int size)
 {
+  size_t payload_size;
   const unsigned char *raw = raw_frame;
 
   /* We have to initialize the payload to avoid
@@ -112,10 +113,13 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
   frame->security = NULL;
 
   if(decode_crc)
-    copy_payload(frame, raw, size - sizeof(uint16_t) - (raw - raw_frame));
+    payload_size = size - sizeof(uint16_t) - (raw - raw_frame);
   else
-    copy_payload(frame, raw, size - (raw - raw_frame));
+    payload_size = size - (raw - raw_frame);
 
+  /* We only copy the payload when needed. */
+  if(payload_size)
+    copy_payload(frame, raw, payload_size);
 
   /* Check for an overflow which may arise with crafted frames.
      That is minus one converted to unsigned int which would.
