@@ -1,5 +1,5 @@
 /* File: mac-decode.c
-   Time-stamp: <2013-03-22 00:59:35 gawen>
+   Time-stamp: <2013-03-23 22:08:34 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -18,6 +18,7 @@
 
 #define _BSD_SOURCE
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <endian.h>
 #include <string.h>
@@ -80,7 +81,7 @@ static void copy_payload(struct mac_frame *frame, const unsigned char *raw,
 }
 
 int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
-               unsigned int size)
+               bool decode_crc, unsigned int size)
 {
   const unsigned char *raw = raw_frame;
 
@@ -110,7 +111,11 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
 
   frame->security = NULL;
 
-  copy_payload(frame, raw, size - sizeof(uint16_t) - (raw - raw_frame));
+  if(decode_crc)
+    copy_payload(frame, raw, size - sizeof(uint16_t) - (raw - raw_frame));
+  else
+    copy_payload(frame, raw, size - (raw - raw_frame));
+
 
   /* Check for an overflow which may arise with crafted frames.
      That is minus one converted to unsigned int which would.
@@ -121,9 +126,12 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
   raw += frame->size;
 
   CHECK(raw_frame, raw, size);
-  frame->fcs = be16toh(U8_TO(uint16_t, raw));
 
-  CHECK(raw_frame, raw+2, size);
+  if(decode_crc) {
+    frame->fcs = be16toh(U8_TO(uint16_t, raw));
+    CHECK(raw_frame, raw+2, size);
+  }
+
   return 0;
 }
 

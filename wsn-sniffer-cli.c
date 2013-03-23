@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-23 21:09:37 gawen>
+   Time-stamp: <2013-03-23 22:11:41 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -51,7 +51,7 @@ static void event(const unsigned char *data, enum event event_type, size_t size)
   switch(event_type) {
   case(EV_FRAME):
     /* We except a raw frame so we don't need to renormalize anything. */
-    if(mac_decode(&frame, data, size) < 0) {
+    if(mac_decode(&frame, data, true, size) < 0) {
 #ifndef NDEBUG
       hex_dump(data, size);
 #endif /* NDEBUG */

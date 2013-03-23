@@ -1,5 +1,5 @@
 /* File: mac-decode.h
-   Time-stamp: <2013-03-22 01:01:38 gawen>
+   Time-stamp: <2013-03-23 22:05:49 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -19,12 +19,15 @@
 #ifndef _MAC_DECODE_H_
 #define _MAC_DECODE_H_
 
+#include <stdbool.h>
+
 #include "mac.h"
 
 /* Decode an IEEE 802.15.4 MAC frame. Return a negative number if an error
-   occured. */
+   occured. The decode_crc argument specifies if the decoder should assume that
+   the frame contains a CRC or not. */
 int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
-               unsigned int size);
+               bool decode_crc, unsigned int size);
 
 /* Free internal data associated to a decoded mac frame. */
 void free_mac_frame(struct mac_frame *frame);

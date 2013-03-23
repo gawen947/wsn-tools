@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 21:41:28 gawen>
+   Time-stamp: <2013-03-23 22:10:06 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -270,9 +270,15 @@ static void file_action(struct mac_frame *frame, const char *filename,
     err(EXIT_FAILURE, "cannot read '%s'", filename);
 
   if(action(frame, buf, n) < 0)
-    warnx("%s", warning_message);
+    errx(EXIT_FAILURE, "%s", warning_message);
 
   close(fd);
+}
+
+static int mac_decode_crc(struct mac_frame *frame, const unsigned char *data,
+                          unsigned int size)
+{
+  return mac_decode(frame, data, false, size);
 }
 
 static int copy_payload(struct mac_frame *frame, const unsigned char *data,
@@ -288,7 +294,7 @@ static int copy_payload(struct mac_frame *frame, const unsigned char *data,
 
 static void decode_frame(struct mac_frame *frame, const char *filename)
 {
-  file_action(frame, filename, mac_decode, "cannot decode frame");
+  file_action(frame, filename, mac_decode_crc, "cannot decode frame");
 }
 
 static void setup_payload(struct mac_frame *frame, const char *filename)
