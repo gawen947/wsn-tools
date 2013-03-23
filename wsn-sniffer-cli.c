@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-22 20:16:00 gawen>
+   Time-stamp: <2013-03-23 21:09:37 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -56,6 +56,11 @@ static void event(const unsigned char *data, enum event event_type, size_t size)
       hex_dump(data, size);
 #endif /* NDEBUG */
       warnx("cannot decode frame");
+
+      /* We do not show invalid frame as most of it
+         is probably uninitialized garbage. */
+      free_mac_frame(&frame);
+      break;
     }
 
     /* Display the frame live. */
