@@ -1,5 +1,5 @@
 /* File: pcap.c
-   Time-stamp: <2013-03-22 22:59:39 gawen>
+   Time-stamp: <2013-03-23 13:29:24 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -72,6 +72,13 @@ void append_frame(const unsigned char *frame, unsigned int size)
 
   /* If the pcap was not initialized we do nothing. */
   if(!pcap)
+    return;
+
+  /* Sometime we are asked to write an empty frame.
+     This may be due to an error in the firmare which
+     sends empty frame. When such a case arise we just
+     ignore it. */
+  if(!size)
     return;
 
   /* Note that POSIX.1-2008 marks this function obsolete and it is recommended
