@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 17:38:19 gawen>
+   Time-stamp: <2013-03-23 21:20:41 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -16,6 +16,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdbool.h>
@@ -31,11 +32,13 @@
 
 #include "mac.h"
 #include "mac-decode.h"
+#include "mac-encode.h"
 #include "mac-display.h"
 #include "atoi-gen.h"
 #include "getflg.h"
 #include "version.h"
 #include "string.h"
+#include "dump.h"
 #include "uart.h"
 #include "help.h"
 
@@ -455,6 +458,9 @@ static void setup_default_frame(struct mac_frame *frame)
 
 int main(int argc, char *argv[])
 {
+  unsigned char frame_buffer[127];
+  int frame_size;
+
   bool dryrun  = false;
   bool display = false;
   const char *name;
@@ -638,6 +644,11 @@ int main(int argc, char *argv[])
 
     tty = argv[optind];
   }
+
+  /* try to encode first */
+  frame_size = mac_encode(&frame, frame_buffer);
+  if(frame_size < 0)
+    errx(EXIT_FAILURE, "cannot decode frame");
 
   /* display if requested */
   if(display)

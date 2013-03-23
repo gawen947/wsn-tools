@@ -11,7 +11,7 @@ DEP  = $(SRC:.c=.d)
 TARGETS     = wsn-sniffer-cli wsn-injector-cli
 
 SNIFFER_OBJ = version.o iobuf.o dump.o help.o mac-display.o mac-decode.o pcap.o uart-input.o uart.o wsn-sniffer-cli.o
-INJECTOR_OBJ = version.o uart.o getflg.o atoi-gen.o help.o mac-decode.o mac-display.o wsn-injector-cli.o
+INJECTOR_OBJ = version.o uart.o getflg.o atoi-gen.o help.o dump.o mac-encode.o mac-decode.o mac-display.o wsn-injector-cli.o
 
 PREFIX  ?= /usr/local
 BIN     ?= /bin
