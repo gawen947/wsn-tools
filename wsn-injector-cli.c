@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-24 00:07:09 gawen>
+   Time-stamp: <2013-03-24 00:17:20 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -490,6 +490,7 @@ int main(int argc, char *argv[])
   const char *tty         = NULL;
   const char *frame_out   = NULL;
   const char *payload_out = NULL;
+  const char *header_out  = NULL;
   speed_t speed = B0;
 
   /* working frame */
@@ -514,7 +515,8 @@ int main(int argc, char *argv[])
     OPT_EPANCOMP,
     OPT_DPANCOMP,
     OPT_WRITE_FRAME,
-    OPT_WRITE_PAYLOAD
+    OPT_WRITE_PAYLOAD,
+    OPT_WRITE_HEADER
   };
 
   struct opt_help helps[] = {
@@ -545,6 +547,7 @@ int main(int argc, char *argv[])
     { 0, "disable-pan-comp", "Disable the PAN-ID compression flag" },
     { 0, "write-frame", "Write the resulting frame to a file" },
     { 0, "write-payload", "Write the payload to a file" },
+    { 0, "write-header", "Write the header to a file" },
     { 0, NULL, NULL }
   };
 
@@ -576,6 +579,7 @@ int main(int argc, char *argv[])
     { "disable-pan-comp", no_argument, NULL, OPT_DPANCOMP },
     { "write-frame", required_argument, NULL, OPT_WRITE_FRAME },
     { "write-payload", required_argument, NULL, OPT_WRITE_PAYLOAD },
+    { "write-header", required_argument, NULL, OPT_WRITE_HEADER },
     { NULL, 0, NULL, 0 }
   };
 
@@ -625,6 +629,9 @@ int main(int argc, char *argv[])
       break;
     case OPT_WRITE_PAYLOAD:
       payload_out = optarg;
+      break;
+    case OPT_WRITE_HEADER:
+      header_out = optarg;
       break;
     case 's':
       setup_saddr(&frame, optarg);
@@ -705,6 +712,10 @@ int main(int argc, char *argv[])
   /* write payload if requested */
   if(payload_out)
     write_to_file(payload_out, "payload", frame.payload, frame.size);
+
+  /* write header if requested */
+  if(header_out)
+    write_to_file(header_out, "header", frame_buffer, frame_size - frame.size);
 
   exit_status = EXIT_SUCCESS;
 EXIT:
