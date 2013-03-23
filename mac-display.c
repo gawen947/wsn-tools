@@ -1,5 +1,5 @@
 /* File: mac-display.c
-   Time-stamp: <2013-03-14 16:55:23 gawen>
+   Time-stamp: <2013-03-23 17:34:38 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -23,6 +23,7 @@
 #include <endian.h>
 
 #include "mac.h"
+#include "mac-display.h"
 #include "common.h"
 
 static void display_mac_type(enum mac_type type)

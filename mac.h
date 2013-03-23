@@ -1,5 +1,5 @@
 /* File: mac.h
-   Time-stamp: <2013-03-22 00:54:20 gawen>
+   Time-stamp: <2013-03-23 17:33:11 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -20,13 +20,6 @@
 #define _MAC_H_
 
 #include <stdint.h>
-
-/* mac information */
-enum mac_info { MI_CONTROL = 0x1, /* display frame control */
-                MI_SEQNO   = 0x2, /* display sequence number */
-                MI_ADDR    = 0x4, /* display addressing fields */
-                MI_SECURITY= 0x8  /* display auxiliary security header */ };
-#define MI_ALL 0xf /* display everything */
 
 /* mac control */
 #define MC_TYPE         0x7     /* frame type */
