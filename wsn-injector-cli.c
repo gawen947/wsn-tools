@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 21:21:41 gawen>
+   Time-stamp: <2013-03-23 21:22:14 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -658,8 +658,15 @@ int main(int argc, char *argv[])
     errx(EXIT_FAILURE, "cannot decode frame");
 
   /* display if requested */
-  if(display)
+  if(display) {
     mac_display(&frame, MI_ALL);
+    if(frame.payload) {
+      printf("Payload:\n");
+      hex_dump(frame.payload, frame.size);
+    }
+    putchar('\n');
+  }
+
 
   /* write frame if requested */
   if(frame_out) {
