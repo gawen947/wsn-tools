@@ -1,5 +1,5 @@
 /* File: pcap.c
-   Time-stamp: <2013-03-23 21:43:33 gawen>
+   Time-stamp: <2013-03-23 21:48:40 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -51,7 +51,7 @@ void init_pcap(const char *path)
            Well we could do this but will have to take
            care of endianness. We can also do a tool
            to merge PCAP files (which I will do later). */
-  pcap = iobuf_open(path, O_WRONLY | O_CREAT | O_TRUNC, 0);
+  pcap = iobuf_open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 
   if(!pcap)
     err(EXIT_FAILURE, "cannot open pcap file");

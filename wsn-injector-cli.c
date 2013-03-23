@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 21:28:11 gawen>
+   Time-stamp: <2013-03-23 21:41:28 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -671,7 +671,7 @@ int main(int argc, char *argv[])
   /* write frame if requested */
   if(frame_out) {
     ssize_t n;
-    int fd = open(frame_out, O_WRONLY | O_CREAT | O_TRUNC);
+    int fd = open(frame_out, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if(fd < 0)
       err(EXIT_FAILURE, "cannot open '%s'", frame_out);
 
