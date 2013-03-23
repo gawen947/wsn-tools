@@ -1,5 +1,5 @@
 /* File: mac-encode.c
-   Time-stamp: <2013-03-23 21:01:27 gawen>
+   Time-stamp: <2013-03-23 21:30:41 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -33,7 +33,7 @@ static unsigned char * encode_address(const struct mac_addr *addr,
   switch(mode) {
   case MAM_RESERVED: /* cannot encode a reserved address */
   case MAM_FULL:
-    return 0;
+    return buf;
   default:
     break;
   }
