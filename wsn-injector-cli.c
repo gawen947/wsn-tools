@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-23 21:22:14 gawen>
+   Time-stamp: <2013-03-23 21:28:11 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
   /* try to encode first */
   frame_size = mac_encode(&frame, frame_buffer);
   if(frame_size < 0)
-    errx(EXIT_FAILURE, "cannot decode frame");
+    errx(EXIT_FAILURE, "cannot encode frame");
 
   /* display if requested */
   if(display) {
