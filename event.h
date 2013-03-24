@@ -1,5 +1,4 @@
 /* File: event.h
-   Time-stamp: <2013-03-10 19:53:52 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

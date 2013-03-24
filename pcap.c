@@ -1,5 +1,4 @@
 /* File: pcap.c
-   Time-stamp: <2013-03-24 01:44:42 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

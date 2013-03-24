@@ -1,5 +1,4 @@
 /* File: mac.h
-   Time-stamp: <2013-03-23 17:33:11 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

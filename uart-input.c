@@ -1,5 +1,4 @@
 /* File: uart-input.c
-   Time-stamp: <2013-03-13 18:58:03 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

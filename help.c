@@ -1,5 +1,4 @@
 /* File: help.c
-   Time-stamp: <2013-02-06 13:36:00 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

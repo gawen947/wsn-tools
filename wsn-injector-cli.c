@@ -1,5 +1,4 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-24 01:33:08 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

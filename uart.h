@@ -1,5 +1,4 @@
 /* File: uart.h
-   Time-stamp: <2013-03-21 13:32:19 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

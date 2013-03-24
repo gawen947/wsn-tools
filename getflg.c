@@ -1,5 +1,4 @@
 /* File: getflg.c
-   Time-stamp: <2013-03-18 03:34:50 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

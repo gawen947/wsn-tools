@@ -1,5 +1,4 @@
 /* File: mac-encode.c
-   Time-stamp: <2013-03-24 01:00:12 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

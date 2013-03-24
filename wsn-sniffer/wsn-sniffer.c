@@ -1,5 +1,4 @@
 /* File: wsn-sniffer.c
-   Time-stamp: <2013-03-11 00:37:15 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

@@ -1,5 +1,4 @@
 /* File: mac-decode.c
-   Time-stamp: <2013-03-23 22:36:40 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

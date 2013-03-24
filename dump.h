@@ -1,5 +1,4 @@
 /* File: dump.h
-   Time-stamp: <2013-02-06 01:37:48 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

@@ -1,5 +1,4 @@
 /* File: version.h
-   Time-stamp: <2013-03-15 17:31:58 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

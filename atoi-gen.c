@@ -1,5 +1,4 @@
 /* File: atoi_u.c
-   Time-stamp: <2013-03-21 15:10:28 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

@@ -1,5 +1,4 @@
 /* File: atoi-gen.h
-   Time-stamp: <2013-03-21 15:11:17 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 

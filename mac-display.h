@@ -1,5 +1,4 @@
 /* File: mac-display.h
-   Time-stamp: <2013-03-23 17:33:15 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
