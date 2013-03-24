@@ -1,5 +1,5 @@
 /* File: pcap.h
-   Time-stamp: <2013-02-05 19:15:30 gawen>
+   Time-stamp: <2013-03-24 02:07:42 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -24,6 +24,9 @@ void init_pcap(const char *path);
 
 /* Append a MAC frame to the PCAP file. */
 void append_frame(const unsigned char *frame, unsigned int size);
+
+/* Flush the PCAP file. */
+void flush_pcap(void);
 
 /* Close the PCAP file. */
 void destroy_pcap(void);

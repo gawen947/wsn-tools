@@ -1,5 +1,5 @@
 /* File: wsn-sniffer-cli.c
-   Time-stamp: <2013-03-23 22:11:41 gawen>
+   Time-stamp: <2013-03-24 02:08:18 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -106,9 +106,15 @@ static void sig_cleanup(int signum)
   exit(EXIT_SUCCESS);
 }
 
+static void sig_flush(int signum)
+{
+  flush_pcap();
+}
+
 int main(int argc, char *argv[])
 {
   struct sigaction act = { .sa_handler = sig_cleanup };
+  struct sigaction fls = { .sa_handler = sig_flush };
   const char *name;
   const char *tty  = NULL;
   const char *pcap = NULL;
@@ -229,8 +235,10 @@ int main(int argc, char *argv[])
      or the SIGTERM signal. So we need to register
      an exit hook and signals too. */
   sigfillset(&act.sa_mask);
+  sigfillset(&fls.sa_mask);
   sigaction(SIGTERM, &act, NULL);
   sigaction(SIGINT, &act, NULL);
+  sigaction(SIGUSR1, &fls, NULL);
   atexit(cleanup);
 
   uart_input_loop(tty, speed, event);
