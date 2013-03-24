@@ -1,5 +1,5 @@
 /* File: mac-encode.c
-   Time-stamp: <2013-03-23 21:30:41 gawen>
+   Time-stamp: <2013-03-24 01:00:12 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -87,7 +87,7 @@ int mac_encode(const struct mac_frame *frame, unsigned char *buf)
     goto EXIT;
 
   /* check size before appending the payload */
-  if(buf + frame->size - orig >= 127)
+  if(buf + frame->size - orig > 127)
     return -2;
 
   memcpy(buf, frame->payload, frame->size);
