@@ -1,5 +1,5 @@
 /* File: wsn-tools-cli.c
-   Time-stamp: <2013-03-24 00:17:20 gawen>
+   Time-stamp: <2013-03-24 01:33:08 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <getopt.h>
@@ -479,6 +480,25 @@ static void write_to_file(const char *filename, const char *error,
   close(fd);
 }
 
+static void fill_with_random(unsigned char *buf, unsigned int size)
+{
+  int i;
+
+  struct timeval tv;
+  unsigned int seed;
+
+  gettimeofday(&tv, NULL);
+
+  /* David's magic hash */
+  seed = (tv.tv_sec  + (tv.tv_sec  << 11)) ^ \
+         (tv.tv_usec + (tv.tv_usec << 17));
+
+  srand(seed);
+
+  for(i = 0 ; i < size ; i++)
+    buf[i] = rand() % 0xff;
+}
+
 int main(int argc, char *argv[])
 {
   unsigned char frame_buffer[127];
@@ -486,6 +506,7 @@ int main(int argc, char *argv[])
 
   bool dryrun  = false;
   bool display = false;
+  bool random  = false;
   const char *name;
   const char *tty         = NULL;
   const char *frame_out   = NULL;
@@ -516,7 +537,8 @@ int main(int argc, char *argv[])
     OPT_DPANCOMP,
     OPT_WRITE_FRAME,
     OPT_WRITE_PAYLOAD,
-    OPT_WRITE_HEADER
+    OPT_WRITE_HEADER,
+    OPT_RANDOM_PAYLOAD
   };
 
   struct opt_help helps[] = {
@@ -548,6 +570,7 @@ int main(int argc, char *argv[])
     { 0, "write-frame", "Write the resulting frame to a file" },
     { 0, "write-payload", "Write the payload to a file" },
     { 0, "write-header", "Write the header to a file" },
+    { 0, "random-payload", "Fill the frame with a random payload" },
     { 0, NULL, NULL }
   };
 
@@ -580,6 +603,7 @@ int main(int argc, char *argv[])
     { "write-frame", required_argument, NULL, OPT_WRITE_FRAME },
     { "write-payload", required_argument, NULL, OPT_WRITE_PAYLOAD },
     { "write-header", required_argument, NULL, OPT_WRITE_HEADER },
+    { "random-payload", no_argument, NULL, OPT_RANDOM_PAYLOAD },
     { NULL, 0, NULL, 0 }
   };
 
@@ -632,6 +656,9 @@ int main(int argc, char *argv[])
       break;
     case OPT_WRITE_HEADER:
       header_out = optarg;
+      break;
+    case OPT_RANDOM_PAYLOAD:
+      random = true;
       break;
     case 's':
       setup_saddr(&frame, optarg);
@@ -694,6 +721,24 @@ int main(int argc, char *argv[])
   if(frame_size < 0)
     errx(EXIT_FAILURE, "cannot encode frame");
 
+  /* fill the payload with random padding */
+  if(random) {
+    unsigned int size = sizeof(frame_buffer) - frame_size;
+    unsigned char *new_payload = malloc(frame.size + size);
+
+    memcpy(new_payload, frame.payload, frame.size);
+    free((void *)frame.payload);
+
+    fill_with_random(new_payload + frame.size, size);
+    frame.size    += size;
+    frame.payload  = new_payload;
+
+    /* encode again */
+    frame_size = mac_encode(&frame, frame_buffer);
+    if(frame_size < 0)
+      errx(EXIT_FAILURE, "cannot encode frame");
+  }
+
   /* display if requested */
   if(display) {
     mac_display(&frame, MI_ALL);
@@ -703,7 +748,6 @@ int main(int argc, char *argv[])
     }
     putchar('\n');
   }
-
 
   /* write frame if requested */
   if(frame_out)
