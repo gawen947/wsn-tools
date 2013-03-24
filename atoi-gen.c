@@ -1,4 +1,4 @@
-/* File: atoi_u.c
+/* File: atoi-gen.c
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
