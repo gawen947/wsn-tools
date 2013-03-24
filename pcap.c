@@ -1,5 +1,5 @@
 /* File: pcap.c
-   Time-stamp: <2013-03-23 21:48:40 gawen>
+   Time-stamp: <2013-03-24 01:44:42 gawen>
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -95,6 +95,12 @@ void append_frame(const unsigned char *frame, unsigned int size)
   n = iobuf_write(pcap, frame, size);
   if(n != size)
     err(EXIT_FAILURE, "cannot write to pcap file");
+}
+
+void flush_pcap(void)
+{
+  if(pcap)
+    iobuf_flush(pcap);
 }
 
 void destroy_pcap(void)

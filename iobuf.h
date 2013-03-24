@@ -1,5 +1,5 @@
 /* File: iobuf.h
-   Time-stamp: <2013-03-22 22:58:50 gawen>
+   Time-stamp: <2013-03-24 01:53:50 gawen>
 
    Copyright (C) 2012-2013 David Hauweele <david@hauweele.net>
 
@@ -60,7 +60,7 @@ ssize_t iobuf_read(iofile_t file, void *buf, size_t count);
    the kernel buffers are not flushed so you may need to sync manually.
    Unlike the standard fflush function this function does not discards
    the read buffer and only affects the write buffer. */
-ssize_t iobuf_flush(iofile_t file);
+int iobuf_flush(iofile_t file);
 
 /* Close a stream. This function also take care of flushing the buffers
    when needed. */

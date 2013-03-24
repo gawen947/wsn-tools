@@ -1,5 +1,5 @@
 /* File: iobuf.c
-   Time-stamp: <2013-03-22 23:00:30 gawen>
+   Time-stamp: <2013-03-24 01:55:10 gawen>
 
    Copyright (C) 2012-2013 David Hauweele <david@hauweele.net>
 
@@ -41,17 +41,22 @@ struct iofile {
   char buf[IOBUF_SIZE * 2];
 };
 
-ssize_t iobuf_flush(iofile_t file)
+int iobuf_flush(iofile_t file)
 {
-  ssize_t partial_write;
+  int write_size  = file->write_size;
 
-  partial_write = write(file->fd, file->buf, file->write_size);
-  if(partial_write >= 0) {
-    file->write_size -= partial_write;
-    file->write_buf  -= partial_write;
+  while(write_size) {
+    ssize_t partial_write = write(file->fd, file->buf, write_size);
+    if(partial_write < 0)
+      return partial_write;
+
+    write_size -= partial_write;
   }
 
-  return partial_write;
+  file->write_size = 0;
+  file->write_buf  = file->buf;
+
+  return 0;
 }
 
 iofile_t iobuf_dopen(int fd)
