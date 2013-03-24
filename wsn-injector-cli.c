@@ -40,6 +40,7 @@
 #include "string.h"
 #include "dump.h"
 #include "uart.h"
+#include "event.h"
 #include "help.h"
 
 #define TARGET "Injector-CLI"
@@ -498,6 +499,17 @@ static void fill_with_random(unsigned char *buf, unsigned int size)
     buf[i] = rand() % 0xff;
 }
 
+static void full_write(int fd, const void *buf, size_t count, const char *error)
+{
+  while(count) {
+    ssize_t n = write(fd, buf, count);
+    if(n < 0)
+      err(EXIT_FAILURE, "%s", error);
+    count -= n;
+    buf   += n;
+  }
+}
+
 int main(int argc, char *argv[])
 {
   unsigned char frame_buffer[127];
@@ -759,6 +771,17 @@ int main(int argc, char *argv[])
   /* write header if requested */
   if(header_out)
     write_to_file(header_out, "header", frame_buffer, frame_size - frame.size);
+
+  /* Send the frame. */
+  if(!dryrun) {
+    unsigned char information = EV_FRAME | frame_size;
+    int fd = open_uart(tty, speed, O_WRONLY);
+
+    full_write(fd, &information, 1, "cannot write to UART");
+    full_write(fd, frame_buffer, frame_size, "cannot write to UART");
+
+    close(fd);
+  }
 
   exit_status = EXIT_SUCCESS;
 EXIT:
