@@ -1,4 +1,4 @@
-/* File: wsn-sniffer.h
+/* File: output.h
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -15,8 +15,8 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _WSN_SNIFFER_H_
-#define _WSN_SNIFFER_H_
+#ifndef _OUTPUT_H_
+#define _OUTPUT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,4 +42,4 @@ extern "C" {
 }
 #endif
 
-#endif /* _WSN_SNIFFER_H_ */
+#endif /* _OUTPUT_H_ */

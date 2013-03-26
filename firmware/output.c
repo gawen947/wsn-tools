@@ -1,4 +1,4 @@
-/* File: wsn-sniffer.c
+/* File: output.c
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
