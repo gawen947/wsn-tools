@@ -139,6 +139,7 @@ int main(int argc, char *argv[])
   const char *tty  = NULL;
   const char *pcap = NULL;
   speed_t speed = B0;
+  int timeout = 0;
   int fd;
 
   int exit_status = EXIT_FAILURE;
@@ -159,6 +160,7 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { 0, "commit", "Display commit information" },
 #endif /* COMMIT */
+    { 'T', "timeout", "Specify the timeout"},
     { 'b', "baud", "Specify the baud rate"},
     { 'p', "pcap", "Save packets in the specified PCAP file" },
     { 'c', "show-control", "Display frame control information" },
@@ -177,6 +179,7 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { "commit", no_argument, NULL, OPT_COMMIT },
 #endif /* COMMIT */
+    { "timeout", required_argument, NULL, 'T'},
     { "baud", required_argument, NULL, 'b' },
     { "pcap", required_argument, NULL, 'p' },
     { "show-control", no_argument, NULL, 'c' },
@@ -190,7 +193,7 @@ int main(int argc, char *argv[])
   };
 
   while(1) {
-    int c = getopt_long(argc, argv, "hVp:cb:saSMPA", opts, NULL);
+    int c = getopt_long(argc, argv, "hVp:cb:T:saSMPA", opts, NULL);
 
     if(c == -1)
       break;
@@ -201,6 +204,11 @@ int main(int argc, char *argv[])
       break;
     case('b'):
       speed = baud(optarg);
+      break;
+    case('T'):
+      timeout = atoi(optarg);
+      if(timeout <= 0)
+        errx(EXIT_FAILURE, "invalid timeout value");
       break;
     case('c'):
       mac_info |= MI_CONTROL;
@@ -268,7 +276,7 @@ int main(int argc, char *argv[])
   prot_mqueue_sendall(mqueue, fd);
 
   /* Read until timeout (if requested). */
-  input_loop(fd, message_cb, "Waiting", 0);
+  input_loop(fd, message_cb, "Waiting", timeout);
   exit_status = EXIT_SUCCESS;
 
 EXIT:

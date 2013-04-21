@@ -573,6 +573,7 @@ int main(int argc, char *argv[])
   const char *payload_out = NULL;
   const char *header_out  = NULL;
   speed_t speed = B0;
+  int timeout = 0;
 
   /* working frame */
   setup_default_frame(&frame);
@@ -609,6 +610,7 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { 0, "commit", "Display commit information" },
 #endif /* COMMIT */
+    { 'T', "timeout", "Specify the timeout"},
     { 'n', "dry-run", "Do not send the frame on UART" },
     { 'D', "display", "Display the reconstructed frame" },
     { 'b', "baud", "Specify the baud rate"},
@@ -642,6 +644,7 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { "commit", no_argument, NULL, OPT_COMMIT },
 #endif /* COMMIT */
+    { "timeout", required_argument, NULL, 'T'},
     { "dry-run", no_argument, NULL, 'n' },
     { "display", no_argument, NULL, 'D' },
     { "baud", required_argument, NULL, 'b' },
@@ -670,7 +673,7 @@ int main(int argc, char *argv[])
   };
 
   while(1) {
-    int c = getopt_long(argc, argv, "hVnDb:f:F:t:s:d:p:S:", long_opts, NULL);
+    int c = getopt_long(argc, argv, "hVnDb:T:f:F:t:s:d:p:S:", long_opts, NULL);
 
     if(c == -1)
       break;
@@ -690,6 +693,11 @@ int main(int argc, char *argv[])
       break;
     case 'D':
       display = true;
+      break;
+    case('T'):
+      timeout = atoi(optarg);
+      if(timeout <= 0)
+        errx(EXIT_FAILURE, "invalid timeout value");
       break;
     case 't':
       strtolower(optarg);
@@ -843,7 +851,7 @@ int main(int argc, char *argv[])
 
     /* Read until timeout if an ACK was requested. */
     if(frame.control & MC_ACK)
-      input_loop(fd, message_cb, NULL, 0);
+      input_loop(fd, message_cb, NULL, timeout);
 
     close(fd);
   }
