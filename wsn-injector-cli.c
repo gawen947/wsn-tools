@@ -37,10 +37,12 @@
 #include "atoi-gen.h"
 #include "getflg.h"
 #include "version.h"
-#include "string.h"
+#include "protocol.h"
+#include "protocol-mqueue.h"
+#include "signal-utils.h"
 #include "dump.h"
 #include "uart.h"
-#include "event.h"
+#include "input.h"
 #include "help.h"
 
 #define TARGET "Injector-CLI"
@@ -50,6 +52,9 @@
 
 #define PAN_SOURCE      0x01
 #define PAN_DESTINATION 0x02
+
+static struct mac_frame frame;
+static prot_mqueue_t mqueue;
 
 struct addressing {
   /* specified from command line */
@@ -499,15 +504,59 @@ static void fill_with_random(unsigned char *buf, unsigned int size)
     buf[i] = rand() % 0xff;
 }
 
-static void full_write(int fd, const void *buf, size_t count, const char *error)
+static bool parse_control_message(enum prot_ctype type,
+                                  const unsigned char *data,
+                                  size_t size)
 {
-  while(count) {
-    ssize_t n = write(fd, buf, count);
-    if(n < 0)
-      err(EXIT_FAILURE, "%s", error);
-    count -= n;
-    buf   += n;
+  switch(type) {
+  case(PROT_CTYPE_ACK):
+    return false;
+  default:
+    errx(EXIT_FAILURE, "unmanaged control message %s", prot_ctype_string(type));
   }
+}
+
+static bool message_cb(const unsigned char *data,
+                       enum prot_mtype type,
+                       size_t size)
+{
+  if(size == 0)
+    errx(EXIT_FAILURE, "empty message");
+
+  switch(type) {
+  case(PROT_MTYPE_FRAME):
+    errx(EXIT_FAILURE, "unexpected frame message: "
+         "are you sure this is a injector firmware ?");
+  case(PROT_MTYPE_CONTROL):
+    /* When we receive a control message we always stay in the reading loop
+       except when we receive an ACK. */
+    if(!prot_preparse_control(data, size))
+      return parse_control_message(data[0], data + 1, size - 1);
+    return true;
+  default:
+    warnx("invalid event ignored");
+#ifndef NDEBUG
+    hex_dump(data, size);
+#endif /* NDEBUG */
+    exit(EXIT_FAILURE);
+  }
+
+  /* This function is always in bad mood so it always returns false. */
+  return false;
+}
+
+static void cleanup(void)
+{
+  /* we have to free the message queue here */
+  prot_mqueue_destroy(mqueue);
+
+  /* don't forget to free the frame (and associated payload) */
+  free_mac_frame(&frame);
+}
+
+static void sig_cleanup(int signum)
+{
+  exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[])
@@ -526,13 +575,15 @@ int main(int argc, char *argv[])
   speed_t speed = B0;
 
   /* working frame */
-  struct mac_frame frame;
   setup_default_frame(&frame);
 
   int exit_status = EXIT_FAILURE;
 
   name = (const char *)strrchr(argv[0], '/');
   name = name ? (name + 1) : argv[0];
+
+  /* The message queue must be initialized before parsing the arguments. */
+  mqueue = prot_mqueue_creat();
 
   enum opt {
     OPT_COMMIT = 0x100,
@@ -772,20 +823,33 @@ int main(int argc, char *argv[])
   if(header_out)
     write_to_file(header_out, "header", frame_buffer, frame_size - frame.size);
 
+  /* Register the cleanup function as the most common way to leave the event
+     loop is SIGINT. The program may also quit because of an error or the
+     SIGTERM signal. So we need to register an exit hook and signals too. A
+     setup function will register all signals and for us so we only care about
+     the cleanup functions themselves. */
+  setup_sig(cleanup, sig_cleanup, NULL);
+
   /* Send the frame. */
   if(!dryrun) {
-    unsigned char information = EV_FRAME | frame_size;
-    int fd = open_uart(tty, speed, O_WRONLY);
+    int fd = open_uart(tty, speed);
 
-    full_write(fd, &information, 1, "cannot write to UART");
-    full_write(fd, frame_buffer, frame_size, "cannot write to UART");
+    /* Initialisation of the transceiver
+       with a set of commands. */
+    prot_mqueue_sendall(mqueue, fd);
+
+    /* Write the frame to the transceiver */
+    prot_write(fd, PROT_MTYPE_FRAME, frame_buffer, frame_size);
+
+    /* Read until timeout if an ACK was requested. */
+    if(frame.control & MC_ACK)
+      input_loop(fd, message_cb, NULL, 0);
 
     close(fd);
   }
 
   exit_status = EXIT_SUCCESS;
+
 EXIT:
-  /* don't forget to free the frame (and associated payload) */
-  free_mac_frame(&frame);
   return exit_status;
 }

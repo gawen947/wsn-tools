@@ -23,10 +23,8 @@
 
 /* Open and setup the serial line and return a file descriptor to the serial
    line. The line will be left untouched if the speed is B0. Otherwise it will
-   use a default configuration for the line (8N1). The mode argument allows you
-   to specify the access mode and must includes one of the following: O_RDONLY,
-   O_WRONLY or O_RDWR. */
-int open_uart(const char *path, speed_t speed, mode_t mode);
+   use a default configuration for the line (8N1). */
+int open_uart(const char *path, speed_t speed);
 
 /* Convert a string to a serial speed. */
 speed_t baud(const char *arg);

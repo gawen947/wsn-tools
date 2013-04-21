@@ -66,4 +66,13 @@ unsigned char * prot_read(unsigned char *message,
                                            unsigned char *,
                                            size_t));
 
+/* Decode a control message and take appropriate action with common control
+   types. If the message is recognized and parsed this function will return
+   true so you may skip the message. */
+bool prot_preparse_control(const unsigned char *message, size_t size);
+
+/* Give a string which represent the control message type. If the message is
+   not recognized it will return the associated hexadecimal code. */
+const char * prot_ctype_string(enum prot_ctype type);
+
 #endif /* _PROTOCOL_H_ */

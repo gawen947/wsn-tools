@@ -58,12 +58,12 @@ speed_t baud(const char *arg)
   errx(EXIT_FAILURE, "unrecognized speed");
 }
 
-int open_uart(const char *path, speed_t speed, mode_t mode)
+int open_uart(const char *path, speed_t speed)
 {
   struct termios options = { 0 };
   int fd;
 
-  fd = open(path, mode | O_NOCTTY);
+  fd = open(path, O_RDWR | O_NOCTTY);
 
   if(fd < 0)
     err(EXIT_FAILURE, "cannot open serial port");

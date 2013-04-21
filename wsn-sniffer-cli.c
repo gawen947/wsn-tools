@@ -31,9 +31,11 @@
 #include "pcap.h"
 #include "dump.h"
 #include "help.h"
-#include "event.h"
 #include "uart.h"
-#include "uart-input.h"
+#include "input.h"
+#include "protocol.h"
+#include "protocol-mqueue.h"
+#include "signal-utils.h"
 #include "mac-decode.h"
 #include "mac-display.h"
 
@@ -43,61 +45,82 @@ static bool payload;
 static unsigned int mac_info;
 /* static unsigned int payload_info; */
 
-static void event(const unsigned char *data, enum event event_type, size_t size)
+static prot_mqueue_t mqueue;
+
+static void parse_frame_message(const unsigned char *data, size_t size)
 {
   struct mac_frame frame;
 
-  switch(event_type) {
-  case(EV_FRAME):
-    /* We except a raw frame so we don't need to renormalize anything. */
-    if(mac_decode(&frame, data, true, size) < 0) {
+  /* We   except a raw frame so we don't need to renormalize anything. */
+  if(mac_decode(&frame, data, true, size) < 0) {
 #ifndef NDEBUG
-      hex_dump(data, size);
+    hex_dump(data, size);
 #endif /* NDEBUG */
-      warnx("cannot decode frame");
+    warnx("cannot decode frame");
 
-      /* We do not show invalid frame as most of it
-         is probably uninitialized garbage. */
-      free_mac_frame(&frame);
-      break;
-    }
-
-    /* Display the frame live. */
-    mac_display(&frame, mac_info);
-
-    /* For now we do not try decode payload.
-       Instead we just dump the packet. */
-    if(payload && frame.payload) {
-      printf("Payload:\n");
-      hex_dump(frame.payload, frame.size);
-    }
-
-    putchar('\n');
-
-    /* Append the frame to the PCAP file. */
-    append_frame(data, size);
-
-    /* FIXME: This particular free call may be spared if we provided a way for
-       mac_decode to avoid copying the payload. */
+    /* We do not show invalid frame as most of it
+       is probably uninitialized garbage. */
     free_mac_frame(&frame);
+    return;
+  }
 
+  /*  Display the frame live. */
+  mac_display(&frame, mac_info);
+
+  /* For now we do not try decode payload.
+     Instead we just dump the packet. */
+  if(payload && frame.payload) {
+    printf("Payload:\n");
+    hex_dump(frame.payload, frame.size);
+  }
+
+  putchar('\n');
+
+  /* Append the frame to the PCAP file. */
+  append_frame(data, size);
+
+  /* FIXME: This particular free call may be spared if we provided a way for
+     mac_decode to avoid copying the payload. */
+  free_mac_frame(&frame);
+}
+
+static bool message_cb(const unsigned char *data,
+                       enum prot_mtype type,
+                       size_t size)
+{
+  if(size == 0)
+    errx(EXIT_FAILURE, "empty message");
+
+  switch(type) {
+  case(PROT_MTYPE_FRAME):
+    parse_frame_message(data, size);
     break;
-  case(EV_INFO):
-    write(STDOUT_FILENO, data, size);
+  case(PROT_MTYPE_CONTROL):
+    /* We do not accept any control message for the sniffer.
+       Except the common ones. */
+    if(!prot_preparse_control(data, size))
+      errx(EXIT_FAILURE, "unmanaged control message %s",
+           prot_ctype_string(data[0]));
     break;
   default:
     warnx("invalid event ignored");
 #ifndef NDEBUG
     hex_dump(data, size);
 #endif /* NDEBUG */
-    break;
+    exit(EXIT_FAILURE);
   }
+
+  /* This function is always happy so it always returns true. */
+  return true;
 }
 
 static void cleanup(void)
 {
   /* Ensure that the PCAP file is closed properly to flush buffers. */
   destroy_pcap();
+
+  /* Destroy the message queue. */
+  prot_mqueue_destroy(mqueue);
 }
 
 static void sig_cleanup(int signum)
@@ -112,17 +135,19 @@ static void sig_flush(int signum)
 
 int main(int argc, char *argv[])
 {
-  struct sigaction act = { .sa_handler = sig_cleanup };
-  struct sigaction fls = { .sa_handler = sig_flush };
   const char *name;
   const char *tty  = NULL;
   const char *pcap = NULL;
   speed_t speed = B0;
+  int fd;
 
   int exit_status = EXIT_FAILURE;
 
   name = (const char *)strrchr(argv[0], '/');
   name = name ? (name + 1) : argv[0];
+
+  /* The message queue must be initialized before parsing the arguments. */
+  mqueue = prot_mqueue_creat();
 
   enum opt {
     OPT_COMMIT = 0x100
@@ -228,19 +253,23 @@ int main(int argc, char *argv[])
   if(pcap)
     init_pcap(pcap);
 
-  /* Register the cleanup function as the most
-     common way to leave the event loop is SIGINT.
-     The program may also quit because of an error
-     or the SIGTERM signal. So we need to register
-     an exit hook and signals too. */
-  sigfillset(&act.sa_mask);
-  sigfillset(&fls.sa_mask);
-  sigaction(SIGTERM, &act, NULL);
-  sigaction(SIGINT, &act, NULL);
-  sigaction(SIGUSR1, &fls, NULL);
-  atexit(cleanup);
+  /* Register the cleanup function as the most common way to leave the event
+     loop is SIGINT. The program may also quit because of an error or the
+     SIGTERM signal. So we need to register an exit hook and signals too. A
+     setup function will register all signals and for us so we only care about
+     the cleanup functions themselves. */
+  setup_sig(cleanup, sig_cleanup, sig_flush);
 
-  uart_input_loop(tty, speed, event);
+  /* That's where we really start the operations. */
+  fd = open_uart(tty, speed);
+
+  /* Initialisation of the transceiver
+     with a set of commands. */
+  prot_mqueue_sendall(mqueue, fd);
+
+  /* Read until timeout (if requested). */
+  input_loop(fd, message_cb, "Waiting", 0);
+  exit_status = EXIT_SUCCESS;
 
 EXIT:
   return exit_status;

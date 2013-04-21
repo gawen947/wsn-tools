@@ -1,4 +1,4 @@
-/* File: event.h
+/* File: signal.h
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -15,10 +15,17 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _EVENT_H_
-#define _EVENT_H_
+#ifndef _SIGNAL_UTILS_H_
+#define _SIGNAL_UTILS_H_
 
-enum event { EV_FRAME = 0x00,
-             EV_INFO  = 0x80 };
+/* Setup common signals. The cleanup function will be registred as a hook
+   before exiting the program. The sigterm will be registred to SIGTERM and
+   SIGINT (generally used to gracefully abort the program). Finally the
+   sigusr1 function will be registred to SIGUSR1 (generally used to flush
+   data to the disk). These functions may be NULL in which case they are
+   ignored. */
+void setup_sig(void (*cleanup)(void),
+               void (*sigterm)(int),
+               void (*sigusr1)(int));
 
-#endif /* _EVENT_H_ */
+#endif /* _SIGNAL_UTILS_H_ */

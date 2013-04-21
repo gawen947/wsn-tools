@@ -15,6 +15,7 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -71,4 +72,55 @@ unsigned char * prot_read(unsigned char *message,
   if(!callback(mt, message, size))
     return NULL;
   return message + size;
+}
+
+/* Write a string litteral. */
+#define write_slit(fd, s) write(fd, s, sizeof(s) - 1)
+
+bool prot_preparse_control(const unsigned char *message, size_t size)
+{
+  enum prot_ctype type = message[0];
+  message++;
+
+  switch(type) {
+  case(PROT_CTYPE_INFO):
+    write(STDOUT_FILENO, message, size);
+    break;
+  case(PROT_CTYPE_DEBUG):
+    write_slit(STDERR_FILENO, "debug: ");
+    write(STDERR_FILENO, message, size);
+    write_slit(STDERR_FILENO, "\n");
+    break;
+  /* FIXME: We need error codes associated to the error control messages. */
+  case(PROT_CTYPE_CLI_ERROR):
+    errx(EXIT_FAILURE, "error from the client");
+  case(PROT_CTYPE_SRV_ERROR):
+    errx(EXIT_FAILURE, "error from the transceiver");
+  default:
+    return false;
+  }
+
+  return true;
+}
+
+const char * prot_ctype_string(enum prot_ctype type)
+{
+  static char generic[sizeof("(0xff)")];
+
+  switch(type) {
+  case(PROT_CTYPE_INFO):
+    return "INFO";
+  case(PROT_CTYPE_DEBUG):
+    return "DEBUG";
+  case(PROT_CTYPE_CONFIG):
+    return "ACK";
+  case(PROT_CTYPE_CLI_ERROR):
+    return "CLI_ERROR";
+  case(PROT_CTYPE_SRV_ERROR):
+    return "SRV_ERROR";
+  default:
+    /* generic case */
+    sprintf(generic, "(0x%x)", (unsigned char)type);
+    return generic;
+  }
 }
