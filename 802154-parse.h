@@ -18,11 +18,21 @@
 #ifndef _802154_PARSE_H_
 #define _802154_PARSE_H_
 
-/* Convert a channel string into a channel number.  For now we only blindly
+/* TODO: Extend the channel API.
+
+   The API should comprise a channel structure encompassing the channel's
+   internal representation. This structure should be convertible to/from an user
+   string which will replace the actual parse channel function. This structure
+   should also be convertible to/from a protocol representation of the
+   channel. Such a representation should represent the canal completely in a
+   non-ambiguous way and be aware of the underlying endianess of the
+   protocol. */
+
+/* Convert a channel string into a channel number. For now we only blindly
    support the channel number and expect that the transceiver's firmware know
    what to do with it. However a more extended API should be aware of the
    standard (see IEEEE Std 802.15.4 section 8.2.1) and provide extended
-   informations about the selected channel. */
+   informations about the selected channel (see TODO above). */
 int parse_channel(const char *arg);
 
 #endif /* _802154_PARSE_H_ */

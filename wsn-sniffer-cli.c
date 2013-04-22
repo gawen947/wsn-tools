@@ -38,6 +38,7 @@
 #include "signal-utils.h"
 #include "mac-decode.h"
 #include "mac-display.h"
+#include "802154-parse.h"
 
 #define TARGET "Sniffer-CLI"
 
@@ -138,6 +139,7 @@ int main(int argc, char *argv[])
   const char *name;
   const char *tty  = NULL;
   const char *pcap = NULL;
+  unsigned short channel;
   speed_t speed = B0;
   int timeout = 0;
   int fd;
@@ -211,6 +213,13 @@ int main(int argc, char *argv[])
       timeout = atoi(optarg);
       if(timeout <= 0)
         errx(EXIT_FAILURE, "invalid timeout value");
+      break;
+    case('C'):
+      channel = parse_channel(optarg);
+      prot_mqueue_add_control(mqueue,
+                              PROT_CTYPE_CONFIG_CHANNEL,
+                              &channel,
+                              sizeof(unsigned short));
       break;
     case('c'):
       mac_info |= MI_CONTROL;

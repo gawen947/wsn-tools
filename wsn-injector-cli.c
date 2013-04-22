@@ -35,6 +35,7 @@
 #include "mac-encode.h"
 #include "mac-display.h"
 #include "mac-parse.h"
+#include "802154-parse.h"
 #include "getflg.h"
 #include "version.h"
 #include "protocol.h"
@@ -180,6 +181,7 @@ int main(int argc, char *argv[])
   const char *frame_out   = NULL;
   const char *payload_out = NULL;
   const char *header_out  = NULL;
+  unsigned short channel;
   speed_t speed = B0;
   int timeout = 0;
 
@@ -219,6 +221,7 @@ int main(int argc, char *argv[])
     { 0, "commit", "Display commit information" },
 #endif /* COMMIT */
     { 'T', "timeout", "Specify the timeout"},
+    { 'C', "channel", "Configure the channel" },
     { 'n', "dry-run", "Do not send the frame on UART" },
     { 'D', "display", "Display the reconstructed frame" },
     { 'b', "baud", "Specify the baud rate"},
@@ -252,7 +255,8 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { "commit", no_argument, NULL, OPT_COMMIT },
 #endif /* COMMIT */
-    { "timeout", required_argument, NULL, 'T'},
+    { "timeout", required_argument, NULL, 'T' },
+    { "channel", required_argument, NULL, 'C' },
     { "dry-run", no_argument, NULL, 'n' },
     { "display", no_argument, NULL, 'D' },
     { "baud", required_argument, NULL, 'b' },
@@ -281,7 +285,7 @@ int main(int argc, char *argv[])
   };
 
   while(1) {
-    int c = getopt_long(argc, argv, "hVnDb:T:f:F:t:s:d:p:S:", long_opts, NULL);
+    int c = getopt_long(argc, argv, "hVnDb:T:C:f:F:t:s:d:p:S:", long_opts, NULL);
 
     if(c == -1)
       break;
@@ -306,6 +310,13 @@ int main(int argc, char *argv[])
       timeout = atoi(optarg);
       if(timeout <= 0)
         errx(EXIT_FAILURE, "invalid timeout value");
+      break;
+    case('C'):
+      channel = parse_channel(optarg);
+      prot_mqueue_add_control(mqueue,
+                              PROT_CTYPE_CONFIG_CHANNEL,
+                              &channel,
+                              sizeof(unsigned short));
       break;
     case 't':
       strtolower(optarg);
