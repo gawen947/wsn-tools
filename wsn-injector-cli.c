@@ -16,14 +16,11 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/time.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
-#include <termios.h>
 #include <fcntl.h>
 #include <ctype.h>
 #include <assert.h>
