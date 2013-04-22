@@ -81,7 +81,7 @@ static void display_addr(enum mac_addr_mode am, const struct mac_addr *addr)
     break;
   }
 
-  printf("%04X ", addr->pan);
+  printf("%04X-", addr->pan);
 
   switch(am) {
     int i;
