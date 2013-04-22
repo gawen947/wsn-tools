@@ -112,12 +112,14 @@ const char * prot_ctype_string(enum prot_ctype type)
     return "INFO";
   case(PROT_CTYPE_DEBUG):
     return "DEBUG";
-  case(PROT_CTYPE_CONFIG):
-    return "ACK";
   case(PROT_CTYPE_CLI_ERROR):
     return "CLI_ERROR";
   case(PROT_CTYPE_SRV_ERROR):
     return "SRV_ERROR";
+  case(PROT_CTYPE_ACK):
+    return "ACK";
+  case(PROT_CTYPE_CONFIG_CHANNEL):
+    return "CONFIG_CHANNEL";
   default:
     /* generic case */
     sprintf(generic, "(0x%x)", (unsigned char)type);

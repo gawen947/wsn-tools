@@ -160,8 +160,9 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { 0, "commit", "Display commit information" },
 #endif /* COMMIT */
-    { 'T', "timeout", "Specify the timeout"},
-    { 'b', "baud", "Specify the baud rate"},
+    { 'T', "timeout", "Specify the timeout" },
+    { 'C', "channel", "Configure the channel" },
+    { 'b', "baud", "Specify the baud rate" },
     { 'p', "pcap", "Save packets in the specified PCAP file" },
     { 'c', "show-control", "Display frame control information" },
     { 's', "show-seqno", "Display sequence number" },
@@ -180,6 +181,7 @@ int main(int argc, char *argv[])
     { "commit", no_argument, NULL, OPT_COMMIT },
 #endif /* COMMIT */
     { "timeout", required_argument, NULL, 'T'},
+    { "channel", required_argument, NULL, 'C' },
     { "baud", required_argument, NULL, 'b' },
     { "pcap", required_argument, NULL, 'p' },
     { "show-control", no_argument, NULL, 'c' },

@@ -37,15 +37,17 @@
 
 /* protocol message typ */
 enum prot_mtype { PROT_MTYPE_FRAME   = 0x00,
-                  PROT_MTYPE_CONTROL = 0x80 };
+                  PROT_MTYPE_CONTROL = 0x80
+                  /* no other types are possible */ };
 
 /* protocol control type */
-enum prot_ctype { PROT_CTYPE_INFO      = 0x00,
-                  PROT_CTYPE_DEBUG     = 0x01,
-                  PROT_CTYPE_CONFIG    = 0x02,
-                  PROT_CTYPE_ACK       = 0x03,
-                  PROT_CTYPE_CLI_ERROR = 0x04,
-                  PROT_CTYPE_SRV_ERROR = 0x05 };
+enum prot_ctype { PROT_CTYPE_INFO = 0x00,
+                  PROT_CTYPE_DEBUG,
+                  PROT_CTYPE_CLI_ERROR,
+                  PROT_CTYPE_SRV_ERROR,
+                  PROT_CTYPE_ACK,
+                  PROT_CTYPE_CONFIG_CHANNEL
+                  /* add new types here */ };
 
 /* The maximum allowed size for a message. */
 #define MAX_MESSAGE_SIZE 127
