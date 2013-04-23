@@ -45,6 +45,7 @@ enum prot_ctype { PROT_CTYPE_INFO = 0x00,
                   PROT_CTYPE_DEBUG,
                   PROT_CTYPE_CLI_ERROR,
                   PROT_CTYPE_SRV_ERROR,
+                  PROT_CTYPE_PING,
                   PROT_CTYPE_ACK,
                   PROT_CTYPE_CONFIG_CHANNEL
                   /* add new types here */ };
