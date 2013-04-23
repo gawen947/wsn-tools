@@ -63,11 +63,12 @@ void prot_mqueue_add_control(prot_mqueue_t mq,
   m->next    = NULL;
 
   /* Now we attach the node to the list */
-  mq->tail->next = m;
-  mq->tail       = m;
-
   if(!mq->head)
     mq->head = m;
+  else
+    mq->tail->next = m;
+
+  mq->tail       = m;
 }
 
 void prot_mqueue_sendall(prot_mqueue_t mq, int fd)
