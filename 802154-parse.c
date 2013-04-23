@@ -16,13 +16,26 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdlib.h>
+#include <ctype.h>
 #include <err.h>
 
 #include "802154-parse.h"
 
 int parse_channel(const char *arg)
 {
-  int channel = atoi(arg);
+  const char *s;
+  int channel;
+
+  /* We basically check that the string is composed
+     only of digits. */
+  for(s = arg ; *s ; s++)
+    if(!isdigit(*s))
+      errx(EXIT_FAILURE, "invalid channel number");
+
+  /* Only now that we know that the string is only
+     composed of digits can we parse the integer
+     value. */
+  channel = atoi(arg);
 
   if(channel < 0 || channel > 26)
     errx(EXIT_FAILURE, "invalid channel number");
