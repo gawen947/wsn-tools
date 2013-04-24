@@ -79,6 +79,7 @@ bool prot_preparse_control(const unsigned char *message, size_t size)
 {
   enum prot_ctype type = message[0];
   message++;
+  size--;
 
   switch(type) {
   case(PROT_CTYPE_INFO):
