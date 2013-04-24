@@ -70,9 +70,9 @@ int open_uart(const char *path, speed_t speed)
 
   /* Some operating systems (eg Linux) bufferise the UART input
      even when the file descriptor is not opened. This may be
-     useful in a lot of cases. However we may lay we incomplete
-     messages on the UART buffer. Therefore we hav e to flush the
-     buffer ourself. However for a reason unknown to m e, we have
+     useful in a lot of cases. However we may lay with incomplete
+     messages on the UART buffer. Therefore we have to flush the
+     buffer ourself. However for a reason unknown to me, we have
      to wait a bit before actually flushing. Otherwise the flush
      command would have no effect. */
   usleep(500);
