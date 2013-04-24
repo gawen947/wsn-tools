@@ -68,16 +68,6 @@ int open_uart(const char *path, speed_t speed)
   if(fd < 0)
     err(EXIT_FAILURE, "cannot open serial port");
 
-  /* Some operating systems (eg Linux) bufferise the UART input
-     even when the file descriptor is not opened. This may be
-     useful in a lot of cases. However we may lay with incomplete
-     messages on the UART buffer. Therefore we have to flush the
-     buffer ourself. However for a reason unknown to me, we have
-     to wait a bit before actually flushing. Otherwise the flush
-     command would have no effect. */
-  usleep(500);
-  tcflush(fd, TCIOFLUSH);
-
   /* initial checks */
   if(!isatty(fd))
     err(EXIT_FAILURE, "invalid serial port");
@@ -95,6 +85,16 @@ int open_uart(const char *path, speed_t speed)
     if(tcsetattr(fd, TCSANOW, &options) < 0)
       err(EXIT_FAILURE, "cannot set tty attributes");
   }
+
+  /* Some operating systems (eg Linux) bufferise the UART input
+     even when the file descriptor is not opened. This may be
+     useful in a lot of cases. However we may lay with incomplete
+     messages on the UART buffer. Therefore we have to flush the
+     buffer ourself. However for a reason unknown to me, we have
+     to wait a bit before actually flushing. Otherwise the flush
+     command would have no effect. */
+  usleep(500);
+  tcflush(fd, TCIOFLUSH);
 
   return fd;
 }
