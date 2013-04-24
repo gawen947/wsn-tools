@@ -97,7 +97,7 @@ static void print_ping(const struct timeval *start,
                        char status)
 {
   if(flood)
-    write_slit(STDOUT_FILENO, flood_status);
+    write(STDOUT_FILENO, flood_status, strlen(flood_status));
   else {
     struct timeval delta;
     timersub(end, start, &delta);
