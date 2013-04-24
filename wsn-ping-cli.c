@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -80,8 +81,8 @@ static void apply_crc(const unsigned char *sbuf, size_t size)
 
 static bool check_crc(const unsigned char *buf, size_t size)
 {
-  unsigned long read_crc = *((unsigned long *)(buf + size));
-  unsigned long comp_crc;
+  uint32_t read_crc = *((unsigned long *)(buf + size));
+  uint32_t comp_crc;
 
   comp_crc = crc32(buf, size, 0);
 
@@ -119,7 +120,7 @@ static void parse_ping_message(const unsigned char *data, size_t size)
     count--;
 
   /* Check CRC */
-  if(!check_crc(data, size - 2)) {
+  if(!check_crc(data, size - 4)) {
     error++;
     print_ping(&air.tv, &tv, air.size, air.seqno, "\bE", 'E');
     return;
@@ -187,8 +188,9 @@ static void cleanup(void)
   /* At least we have to close the file descriptor.
      So the firmware could reset the next time we
      open it. */
-  if(!pid)
+  if(!pid) {
     close(fd);
+  }
 }
 
 static void sig_cleanup(int signum)
@@ -341,12 +343,12 @@ int main(int argc, char *argv[])
       apply_crc(sbuf + 2, size + 4);
 
       /* Send this message */
-      write(fd, sbuf, size + 2 + 4 + 4);
+      write(fd, sbuf, size + 2 + 8);
 
       /* Create the ping template */
       gettimeofday(&air.tv, NULL);
       air.seqno = seqno;
-      air.size  = size + 2 + 4 + 4;
+      air.size  = size + 8;
 
       /* Add the message to the queue */
       write(air_queue[1], &air, sizeof(struct on_air));
@@ -356,8 +358,9 @@ int main(int argc, char *argv[])
         write_slit(STDOUT_FILENO, ".");
 
       seqno++;
+      count--;
 
-      if(count != -1 && !count--)
+      if(count != -1 && !count)
         break;
     }
 

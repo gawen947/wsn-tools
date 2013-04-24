@@ -15,9 +15,11 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
+#include <stdint.h>
+
 #include "crc32.h"
 
-static const unsigned long _crc32_tbl[] = {
+static const uint32_t _crc32_tbl[] = {
   0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL,
   0x076dc419L, 0x706af48fL, 0xe963a535L, 0x9e6495a3L,
   0x0edb8832L, 0x79dcb8a4L, 0xe0d5e91eL, 0x97d2d988L,
@@ -84,9 +86,9 @@ static const unsigned long _crc32_tbl[] = {
   0xb40bbe37L, 0xc30c8ea1L, 0x5a05df1bL, 0x2d02ef8dL
 };
 
-unsigned long crc32(const unsigned char *s,
-                    unsigned int size,
-                    unsigned long crc)
+uint32_t crc32(const unsigned char *s,
+               unsigned int size,
+               uint32_t crc)
 {
   unsigned int i;
 

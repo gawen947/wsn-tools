@@ -18,8 +18,10 @@
 #ifndef _CRC32_H_
 #define _CRC32_H_
 
-unsigned long crc32(const unsigned char *s,
-                    unsigned int size,
-                    unsigned long crc);
+#include <stdint.h>
+
+uint32_t crc32(const unsigned char *s,
+               unsigned int size,
+               uint32_t crc);
 
 #endif /* _CRC32_H_ */
