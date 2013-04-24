@@ -18,12 +18,16 @@
 #define _BSD_SOURCE
 
 #include <stdlib.h>
+#include <sys/times.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <errno.h>
 #include <err.h>
+
+#include "protocol.h"
 
 speed_t baud(const char *arg)
 {
@@ -56,6 +60,46 @@ speed_t baud(const char *arg)
       return b->baud;
 
   errx(EXIT_FAILURE, "unrecognized speed");
+}
+
+static void wait_firmware(int fd)
+{
+  /* The firmware will simply send the ready byte when he is ready.
+     So we just way for this ready byte before returning control
+     to the program. */
+  unsigned char ready;
+  fd_set rfds;
+  int ret;
+
+  /* We setup file descriptor set. */
+  FD_ZERO(&rfds);
+  FD_SET(fd, &rfds);
+
+  while(1) {
+    struct timeval tv = { .tv_sec = READY_TIMEOUT };
+
+    ret = select(fd + 1, &rfds, NULL, NULL, &tv);
+
+    if(ret < 0) {
+      /* signal caught */
+      if(errno == EINTR)
+        continue;
+      err(EXIT_FAILURE, "cannot select");
+    } else if (!ret)
+      /* timeout */
+      errx(EXIT_FAILURE, "ready timeout");
+
+    /* There are bytes to read. We will check for our ready byte. */
+    break;
+  }
+
+  /* Read the one ready byte. */
+  if(read(fd, &ready, 1) != 1)
+    errx(EXIT_FAILURE, "cannot read the waiting byte");
+
+  /* Check the value of the ready byte. */
+  if(ready != READY_BYTE)
+    errx(EXIT_FAILURE, "invalid ready byte");
 }
 
 int open_uart(const char *path, speed_t speed)
@@ -95,6 +139,9 @@ int open_uart(const char *path, speed_t speed)
      command would have no effect. */
   usleep(500);
   tcflush(fd, TCIOFLUSH);
+
+  /* Wait that the firmware signals us that he is ready. */
+  wait_firmware(fd);
 
   return fd;
 }

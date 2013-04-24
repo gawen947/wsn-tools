@@ -29,9 +29,14 @@ void protocol_init(void (*frame_cb)(unsigned char *, unsigned int),
                                       unsigned int),
                    void (*send)(const unsigned char *, unsigned int))
 {
+  unsigned char ready = READY_BYTE;
+
   _frame_cb   = frame_cb;
   _control_cb = control_cb;
   _send       = send;
+
+  /* Send the ready byte. */
+  send(&ready, 1);
 }
 
 static void parse_message(unsigned char *message, unsigned int size)
@@ -46,7 +51,7 @@ static void parse_message(unsigned char *message, unsigned int size)
 
     /* catch and respond to ping messages automatically */
     if(message[1] == PROT_CTYPE_PING)
-      send_control(PROT_CTYPE_PING, message + 2, size -1);
+      send_control(PROT_CTYPE_PING, message + 2, size - 1);
     else
       _control_cb(message[1], message + 2, size - 1);
     break;
