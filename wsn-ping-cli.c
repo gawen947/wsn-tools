@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
   const char *name;
   const char *tty = NULL;
   speed_t speed = B0;
-  int interval  = 0;
+  int interval  = 1000000;
   int size      = 64;
 
   int exit_status = EXIT_FAILURE;
