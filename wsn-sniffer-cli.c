@@ -47,6 +47,7 @@ static unsigned int mac_info;
 /* static unsigned int payload_info; */
 
 static prot_mqueue_t mqueue;
+static int fd;
 
 static void parse_frame_message(const unsigned char *data, size_t size)
 {
@@ -117,6 +118,9 @@ static bool message_cb(const unsigned char *data,
 
 static void cleanup(void)
 {
+  /* We have to close the file descriptor too. */
+  close(fd);
+
   /* Ensure that the PCAP file is closed properly to flush buffers. */
   destroy_pcap();
 
@@ -142,7 +146,6 @@ int main(int argc, char *argv[])
   unsigned short channel;
   speed_t speed = B0;
   int timeout = 0;
-  int fd;
 
   int exit_status = EXIT_FAILURE;
 

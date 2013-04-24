@@ -34,6 +34,7 @@
 #include "version.h"
 #include "protocol.h"
 #include "string-utils.h"
+#include "signal-utils.h"
 #include "uart.h"
 #include "dump.h"
 #include "help.h"
@@ -57,6 +58,8 @@ static unsigned long long sq_sum;
 
 static bool flood;
 static int count  = -1;
+static pid_t pid;
+static int fd;
 
 /* This structure represents ping messages lying on the communication channel or
    being processed by the firmware. */
@@ -179,6 +182,20 @@ static bool message_cb(const unsigned char *data,
   return true;
 }
 
+static void cleanup(void)
+{
+  /* At least we have to close the file descriptor.
+     So the firmware could reset the next time we
+     open it. */
+  if(!pid)
+    close(fd);
+}
+
+static void sig_cleanup(int signum)
+{
+  exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char *argv[])
 {
   const char *name;
@@ -186,9 +203,6 @@ int main(int argc, char *argv[])
   speed_t speed = B0;
   int interval  = 0;
   int size      = 64;
-
-  pid_t pid;
-  int fd;
 
   int exit_status = EXIT_FAILURE;
 
@@ -284,7 +298,7 @@ int main(int argc, char *argv[])
      SIGTERM signal. So we need to register an exit hook and signals too. A
      setup function will register all signals and for us so we only care about
      the cleanup functions themselves. */
-//  setup_sig(cleanup, sig_cleanup, sig_flush);
+  setup_sig(cleanup, sig_cleanup, NULL);
 
   /* That's where we really start the operations */
   fd = open_uart(tty, speed);

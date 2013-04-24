@@ -54,6 +54,7 @@
 
 static struct mac_frame frame;
 static prot_mqueue_t mqueue;
+static int uart_fd;
 
 struct addressing {
   /* specified from command line */
@@ -135,6 +136,10 @@ static bool message_cb(const unsigned char *data,
 
 static void cleanup(void)
 {
+  /* exit the file descriptor if we need to */
+  if(uart_fd)
+    close(uart_fd);
+
   /* we have to free the message queue here */
   prot_mqueue_destroy(mqueue);
 
@@ -438,20 +443,18 @@ int main(int argc, char *argv[])
 
   /* Send the frame. */
   if(!dryrun) {
-    int fd = open_uart(tty, speed);
+    uart_fd = open_uart(tty, speed);
 
     /* Initialisation of the transceiver
        with a set of commands. */
-    prot_mqueue_sendall(mqueue, fd);
+    prot_mqueue_sendall(mqueue, uart_fd);
 
     /* Write the frame to the transceiver */
-    prot_write(fd, PROT_MTYPE_FRAME, frame_buffer, frame_size);
+    prot_write(uart_fd, PROT_MTYPE_FRAME, frame_buffer, frame_size);
 
     /* Read until timeout if an ACK was requested. */
     if(frame.control & MC_ACK)
-      input_loop(fd, message_cb, NULL, timeout);
-
-    close(fd);
+      input_loop(uart_fd, message_cb, NULL, timeout);
   }
 
   exit_status = EXIT_SUCCESS;
