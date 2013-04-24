@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
     { 's', "size", "Number of data bytes to be send (max: 118)" },
     { 'c', "count", "Stop after sending count messages" },
     { 'f', "flood", "Use a period/backspace display for the messages sent" },
-    { 'i', "interval", "Wait interval microseconds between each message" },
+    { 'i', "interval", "Wait interval milliseconds between each message" },
     { 0, NULL, NULL }
   };
 
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
 
     switch(c) {
     case('i'):
-      interval = atoi(optarg);
+      interval = atoi(optarg) * 1000;
       if(interval < 0)
         errx(EXIT_FAILURE, "invalid interval value");
       break;
