@@ -16,6 +16,7 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 #include "protocol.h"
+#include "extra-protocol.h"
 
 static void (*_frame_cb)(unsigned char *, unsigned int size);
 static void (*_control_cb)(enum prot_ctype type,
@@ -60,10 +61,9 @@ static void parse_message(unsigned char *message, unsigned int size)
 
 void input_step(unsigned char c)
 {
-  static unsigned int idx  = 0;
-  static unsigned int size; /* we may spare this variable: should we ? */
-
-  unsigned char buffer[MAX_MESSAGE_SIZE + 1];
+  static unsigned int  idx  = 0;
+  static unsigned int  size; /* we may spare this variable: should we ? */
+  static unsigned char buffer[MAX_MESSAGE_SIZE + 1];
 
   buffer[idx] = c;
 

@@ -56,6 +56,12 @@ enum prot_ctype { PROT_CTYPE_INFO = 0x00,
 /* The maximum allowed size for a message. */
 #define MAX_MESSAGE_SIZE 127
 
+/* This byte is used by the firmware to signal that he is ready. */
+#define READY_BYTE       0xff
+
+/* The time to wait for the ready byte. */
+#define READY_TIMEOUT    10
+
 #endif /* _PRIV_PROTOCOL_H_ */
 #endif /* _PROTOCOL_H_ */
 
