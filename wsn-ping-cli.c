@@ -16,12 +16,16 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 #define _BSD_SOURCE
+#define _POSIX_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <string.h>
+#include <signal.h>
 #include <getopt.h>
 #include <termios.h>
 #include <unistd.h>
@@ -52,6 +56,7 @@ static unsigned long long sum;
 static unsigned long long sq_sum;
 
 static bool flood;
+static int count  = -1;
 
 /* This structure represents ping messages lying on the communication channel or
    being processed by the firmware. */
@@ -107,6 +112,8 @@ static void parse_ping_message(const unsigned char *data, size_t size)
 
   /* Extract the packet from the air queue */
   read(air_queue[0], &air, sizeof(struct on_air));
+  if(count != -1)
+    count--;
 
   /* Check CRC */
   if(!check_crc(data, size - 2)) {
@@ -167,6 +174,8 @@ static bool message_cb(const unsigned char *data,
     exit(EXIT_FAILURE);
   }
 
+  if(count != -1 && !count)
+    return false;
   return true;
 }
 
@@ -176,7 +185,6 @@ int main(int argc, char *argv[])
   const char *tty = NULL;
   speed_t speed = B0;
   int interval  = 0;
-  int count     = -1;
   int size      = 64;
 
   pid_t pid;
@@ -338,6 +346,9 @@ int main(int argc, char *argv[])
       if(count != -1 && !count--)
         break;
     }
+
+    /* Wait for our child. */
+    wait(NULL);
   }
   else { /* child */
     input_loop(fd, message_cb, NULL, 0);
