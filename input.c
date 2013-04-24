@@ -86,7 +86,7 @@ static void clear_message(const struct p_wait *wait)
 }
 
 /* This function will parse the buffer. This is where we bind ourself to the
-   protocol.  We don't know about the protocol directly here, except that it is
+   protocol. We don't know about the protocol directly here, except that it is
    composed of messages with a certain length and of a certain type. This
    function can return the start position which indicates the last position of
    the unparsed message left in the buffer. When there is no buffer left and the
