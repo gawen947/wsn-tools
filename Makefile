@@ -44,7 +44,7 @@ wsn-injector-cli: $(INJECTOR_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 wsn-ping-cli: $(PING_OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS) -lm
 
 %.o: %.c
 	$(CC) -Wp,-MMD,$*.d -c $(CFLAGS) -o $@ $<

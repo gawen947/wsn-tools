@@ -30,6 +30,8 @@
 #include <getopt.h>
 #include <termios.h>
 #include <unistd.h>
+#include <limits.h>
+#include <math.h>
 #include <err.h>
 
 #include "version.h"
@@ -54,6 +56,8 @@ static int air_queue[2];
 /* Statistics */
 static unsigned int error;
 static unsigned int ok;
+static unsigned long long min = ULLONG_MAX;
+static unsigned long long max = 0;
 static unsigned long long sum;
 static unsigned long long sq_sum;
 
@@ -89,8 +93,7 @@ static bool check_crc(const unsigned char *buf, size_t size)
   return read_crc == comp_crc;
 }
 
-static void print_ping(const struct timeval *start,
-                       const struct timeval *end,
+static void print_ping(const struct timeval *delta,
                        unsigned int size,
                        unsigned int seqno,
                        const char *flood_status,
@@ -99,30 +102,45 @@ static void print_ping(const struct timeval *start,
   if(flood)
     write(STDOUT_FILENO, flood_status, strlen(flood_status));
   else {
-    struct timeval delta;
-    timersub(end, start, &delta);
     printf("(%c) %d bytes: ping_req=%d time=%s\n", status, size, seqno,
-           tv_to_str(&delta));
+           tv_to_str(delta));
   }
 }
+
+static const char * time_ull_to_str(unsigned long long time)
+{
+  struct timeval tv;
+
+  tv.tv_sec  = time / 1000000;
+  tv.tv_usec = time % 1000000;
+
+  return tv_to_str(&tv);
+}
+
+#define tv_to_ull(tv) (tv)->tv_usec + 1000000 * (tv)->tv_sec
 
 static void parse_ping_message(const unsigned char *data, size_t size)
 {
   struct on_air air;
   struct timeval tv;
-  unsigned int seqno;
+  struct timeval delta;
 
-  gettimeofday(&tv, NULL); /* time received */
+  unsigned int seqno;
+  unsigned long long time;
+
+  gettimeofday(&tv, NULL);        /* time received */
 
   /* Extract the packet from the air queue */
   read(air_queue[0], &air, sizeof(struct on_air));
   if(count != -1)
     count--;
 
+  timersub(&tv, &air.tv, &delta); /* rtt */
+
   /* Check CRC */
   if(!check_crc(data, size - 4)) {
     error++;
-    print_ping(&air.tv, &tv, air.size, air.seqno, "\bE", 'E');
+    print_ping(&delta, air.size, air.seqno, "\bE", 'E');
     return;
   }
 
@@ -130,11 +148,20 @@ static void parse_ping_message(const unsigned char *data, size_t size)
   seqno = *((unsigned int *)data);
   if(seqno != air.seqno) {
     error++;
-    print_ping(&air.tv, &tv, air.size, air.seqno, "\be", 'e');
+    print_ping(&delta, air.size, air.seqno, "\be", 'e');
     return;
   }
 
-  print_ping(&air.tv, &tv, air.size, air.seqno, "\b", '*');
+  /* register statistics */
+  time = tv_to_ull(&delta);
+  if(time < min)
+    min = time;
+  if(time > max)
+    max = time;
+  sum    += time;
+  sq_sum += time*time;
+
+  print_ping(&delta, air.size, air.seqno, "\b", '*');
   ok++;
 }
 
@@ -188,8 +215,33 @@ static void cleanup(void)
   /* At least we have to close the file descriptor.
      So the firmware could reset the next time we
      open it. */
-  if(!pid) {
+  if(pid) {
     close(fd);
+  }
+  /* If we are the child however we will display
+     statistics if the flood option isn't set. */
+  else if(!flood) {
+    unsigned int pct_ok = 0;
+    printf("\n--- ping statistics ---\n");
+
+    if(ok > 0)
+      pct_ok = (100 * error) / ok;
+
+    printf("%d ok, %d errors, %d%% erroneous\n", ok, error, pct_ok);
+
+    if(ok > 0) {
+      unsigned long long avg  = sum / ok;
+      unsigned long long mdev = sq_sum / ok - avg * avg;
+
+      /* We don't care about the fractional part, we are already
+         computing this with microsecond precision anyway. */
+      mdev = sqrt(mdev);
+
+      printf("rtt min/avg/max/mdev =  %s /", time_ull_to_str(min));
+      printf(" %s /", time_ull_to_str(avg));
+      printf(" %s /", time_ull_to_str(max));
+      printf(" %s\n", time_ull_to_str(mdev));
+    }
   }
 }
 
