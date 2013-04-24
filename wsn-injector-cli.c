@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
     case 'h':
       exit_status = EXIT_SUCCESS;
     default:
-      help(name, "[OPTIONS] ... BAUD-RATE TTY", helps);
+      help(name, "[OPTIONS] ... TTY", helps);
       goto EXIT;
     }
   }
