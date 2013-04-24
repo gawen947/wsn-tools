@@ -107,7 +107,7 @@ static int parse_uart_buffer(unsigned char *buffer,
     enum prot_mtype type;
 
     /* extract frame size and event type */
-    frame_size = *p & ~0x80;
+    frame_size = *p & 0x7f;
     type       = *p & 0x80;
 
     /* check that the entire frame is still inside the buffer */
