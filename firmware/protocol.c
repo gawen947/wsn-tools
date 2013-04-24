@@ -99,7 +99,7 @@ static unsigned int find_zero(const unsigned char *b)
 {
   unsigned int i;
 
-  for(i = 0 ; *b != '\0' && i < MAX_MESSAGE_SIZE ; i++, b++);
+  for(i = 0 ; *b != '\0' && i < (MAX_MESSAGE_SIZE - 1) ;  i++, b++);
 
   return i;
 }
