@@ -20,6 +20,10 @@
 
 #include "priv-protocol.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* This initialization function configures the callbacks and send functions
    which interfaces the firmware with the protocol. The frame_cb is called when
    an entire frame is extracted from the input buffer. The control_cb is called
@@ -47,9 +51,15 @@ void send_control(enum prot_ctype type,
    smaller chunks. This is useful for debug and informational messages. */
 void send_asciiz(enum prot_ctype type, const unsigned char *data);
 
+#ifdef __cplusplus
+}
+#endif
+
 /* These macros send common informational and debugging messages over UART. */
-#define send_info(message)  send_asciiz(PROT_CTYPE_INFO, message)
-#define send_debug(message) send_asciiz(PROT_CTYPE_DEBUG, message)
+#define send_info(message)  send_asciiz(PROT_CTYPE_INFO,                \
+                                        (const unsigned char *)message)
+#define send_debug(message) send_asciiz(PROT_CTYPE_DEBUG,               \
+                                        (const unsigned char *)message)
 
 /* These macros are used to easily report
    errors in the firmware or from the client. */

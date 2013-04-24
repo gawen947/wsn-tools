@@ -8,11 +8,13 @@ SRC  = $(wildcard *.c)
 OBJ  = $(foreach obj, $(SRC:.c=.o), $(notdir $(obj)))
 DEP  = $(SRC:.c=.d)
 
-TARGETS     = wsn-sniffer-cli wsn-injector-cli
+TARGETS     = wsn-sniffer-cli wsn-injector-cli wsn-ping-cli
 
-SNIFFER_OBJ = version.o iobuf.o dump.o help.o mac-display.o mac-decode.o pcap.o input.o uart.o wsn-sniffer-cli.o signal-utils.o 802154-parse.o protocol-mqueue.o protocol.o
+SNIFFER_OBJ  = version.o iobuf.o dump.o help.o mac-display.o mac-decode.o pcap.o input.o uart.o wsn-sniffer-cli.o \
+               signal-utils.o 802154-parse.o protocol-mqueue.o protocol.o
 INJECTOR_OBJ = version.o uart.o getflg.o atoi-gen.o help.o dump.o mac-encode.o mac-decode.o mac-display.o mac-parse.o \
-							 wsn-injector-cli.o signal-utils.o input.o 802154-parse.o protocol-mqueue.o protocol.o
+               wsn-injector-cli.o signal-utils.o input.o 802154-parse.o protocol-mqueue.o protocol.o string-utils.o
+PING_OBJ     = version.o uart.o help.o protocol.o input.o signal-utils.o wsn-ping-cli.o string-utils.o dump.o crc32.o
 
 PREFIX  ?= /usr/local
 BIN     ?= /bin
@@ -41,6 +43,9 @@ wsn-sniffer-cli: $(SNIFFER_OBJ)
 wsn-injector-cli: $(INJECTOR_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+wsn-ping-cli: $(PING_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
 %.o: %.c
 	$(CC) -Wp,-MMD,$*.d -c $(CFLAGS) -o $@ $<
 
@@ -53,6 +58,8 @@ clean:
 install:
 	$(MKDIR) -p $(DESTDIR)/$(PREFIX)/$(BIN)
 	$(INSTALL_PROGRAM) wsn-sniffer-cli $(DESTDIR)/$(PREFIX)/$(BIN)
+	$(INSTALL_PROGRAM) wsn-injector-cli $(DESTDIR)/$(PREFIX)/$(BIN)
+	$(INSTALL_PROGRAM) wsn-ping-cli $(DESTDIR)/$(PREFIX)/$(BIN)
 
 uninstall:
 	$(RM) $(DESTDIR)/$(PREFIX)/wsn-sniffer-cli

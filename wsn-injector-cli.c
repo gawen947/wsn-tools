@@ -38,6 +38,7 @@
 #include "protocol.h"
 #include "protocol-mqueue.h"
 #include "signal-utils.h"
+#include "string-utils.h"
 #include "dump.h"
 #include "uart.h"
 #include "input.h"
@@ -89,25 +90,6 @@ static void write_to_file(const char *filename, const char *error,
     errx(EXIT_FAILURE, "cannot write %s", error);
 
   close(fd);
-}
-
-static void fill_with_random(unsigned char *buf, unsigned int size)
-{
-  int i;
-
-  struct timeval tv;
-  unsigned int seed;
-
-  gettimeofday(&tv, NULL);
-
-  /* David's magic hash */
-  seed = (tv.tv_sec  + (tv.tv_sec  << 11)) ^ \
-         (tv.tv_usec + (tv.tv_usec << 17));
-
-  srand(seed);
-
-  for(i = 0 ; i < size ; i++)
-    buf[i] = rand() % 0xff;
 }
 
 static bool parse_control_message(enum prot_ctype type,

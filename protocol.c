@@ -23,6 +23,7 @@
 #include <assert.h>
 
 #include "protocol.h"
+#include "string-utils.h"
 
 static void full_write(int fd, const void *buf, size_t count, const char *error)
 {
@@ -73,9 +74,6 @@ unsigned char * prot_read(unsigned char *message,
     return NULL;
   return message + size;
 }
-
-/* Write a string litteral. */
-#define write_slit(fd, s) write(fd, s, sizeof(s) - 1)
 
 bool prot_preparse_control(const unsigned char *message, size_t size)
 {
