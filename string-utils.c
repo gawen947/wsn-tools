@@ -51,7 +51,7 @@ const char * tv_to_str(const struct timeval *tv)
   else if(tv->tv_sec > 0)
     sprintf(buf, "%ld.%03ld s", tv->tv_sec, tv->tv_usec / 1000);
   else if(tv->tv_usec > 1000)
-    sprintf(buf, "%ld ms", tv->tv_usec / 1000);
+    sprintf(buf, "%ld.%03ld ms", tv->tv_usec / 1000, tv->tv_usec % 1000);
   else
     sprintf(buf, "%ld us", tv->tv_usec);
 
