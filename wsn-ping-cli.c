@@ -268,6 +268,7 @@ int main(int argc, char *argv[])
       break;
     case('f'):
       flood = true;
+      interval = 0;
       break;
     case('b'):
       speed = baud(optarg);
