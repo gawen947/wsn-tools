@@ -118,8 +118,8 @@ int mac_decode(struct mac_frame *frame, const unsigned char *raw_frame,
      result in a very large payload. */
   if(frame->size > 0xff)
     frame->payload = NULL;
-
-  raw += frame->size;
+  else
+    raw += frame->size;
 
   CHECK(raw_frame, raw, size);
 
