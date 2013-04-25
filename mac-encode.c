@@ -86,7 +86,7 @@ int mac_encode(const struct mac_frame *frame, unsigned char *buf)
     goto EXIT;
 
   /* check size before appending the payload */
-  if(buf + frame->size - orig > 127)
+  if(buf + frame->size - orig > 125 /* MAC(127) - CRC(2) */)
     return -2;
 
   memcpy(buf, frame->payload, frame->size);

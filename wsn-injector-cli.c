@@ -199,7 +199,7 @@ static void sig_cleanup(int signum)
 
 int main(int argc, char *argv[])
 {
-  unsigned char frame_buffer[127];
+  unsigned char frame_buffer[127 /* MAC */ - 2 /* crc */ - 1];
   int frame_size;
 
   bool dryrun  = false;
