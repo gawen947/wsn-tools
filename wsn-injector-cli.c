@@ -52,9 +52,15 @@
 #define PAN_SOURCE      0x01
 #define PAN_DESTINATION 0x02
 
+enum input_state { ST_NONE,
+                   ST_WAITING_OK,
+                   ST_WAITING_ACK };
+
+static enum input_state state;
 static struct mac_frame frame;
 static prot_mqueue_t mqueue;
 static int uart_fd;
+static bool ack;
 
 struct addressing {
   /* specified from command line */
@@ -93,13 +99,40 @@ static void write_to_file(const char *filename, const char *error,
   close(fd);
 }
 
+static bool parse_ok(void)
+{
+  if(state != ST_WAITING_OK)
+    errx(EXIT_FAILURE, "unexpected OK");
+
+  if(ack) {
+    /* now that we sent our message we may wait for the ACK */
+    state = ST_WAITING_ACK;
+    return true;
+  }
+  else {
+    /* since we don't want an ACK for this message, we stop here */
+    return false;
+  }
+}
+
+static bool parse_ack(void)
+{
+  if(!ack || state != ST_WAITING_ACK)
+    errx(EXIT_FAILURE, "unexpected ACK");
+
+  /* FIXME: We should display informations here. */
+  return false;
+}
+
 static bool parse_control_message(enum prot_ctype type,
                                   const unsigned char *data,
                                   size_t size)
 {
   switch(type) {
   case(PROT_CTYPE_ACK):
-    return false;
+    return parse_ack();
+  case(PROT_CTYPE_OK):
+    return parse_ok();
   default:
     errx(EXIT_FAILURE, "unmanaged control message %s", prot_ctype_string(type));
   }
@@ -422,6 +455,9 @@ int main(int argc, char *argv[])
     putchar('\n');
   }
 
+  /* save the ACK state */
+  ack = frame.control & MC_ACK;
+
   /* write frame if requested */
   if(frame_out)
     write_to_file(frame_out, "frame", frame_buffer, frame_size);
@@ -443,6 +479,8 @@ int main(int argc, char *argv[])
 
   /* Send the frame. */
   if(!dryrun) {
+    int ret;
+
     uart_fd = open_uart(tty, speed);
 
     /* Initialisation of the transceiver
@@ -453,8 +491,18 @@ int main(int argc, char *argv[])
     prot_write(uart_fd, PROT_MTYPE_FRAME, frame_buffer, frame_size);
 
     /* Read until timeout if an ACK was requested. */
-    if(frame.control & MC_ACK)
-      input_loop(uart_fd, message_cb, NULL, timeout);
+    state = ST_WAITING_OK;
+    ret = input_loop(uart_fd, message_cb, NULL, timeout);
+
+    switch(ret) {
+    case(-1):
+      warnx("there are messages left on the buffer");
+      break;
+    case(-2):
+      warnx(ack ? "ACK reception has timed out" :
+                  "Processing confirmation has timed out");
+      break;
+    }
   }
 
   exit_status = EXIT_SUCCESS;
