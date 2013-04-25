@@ -200,6 +200,9 @@ int input_loop(int fd,
       continue;
     }
 
+    /* Reset the TTL */
+    ttl = timeout * TO_SCALE;
+
     /* Fill the buffer. */
     size = read(fd, buf + start, sizeof(buf) - start);
 
