@@ -1,0 +1,12 @@
+The following files represent the payload of 6LoWPAN packets from a ping between two hosts.
+In particular in contains the necessary packets to ping a host with the injector command.
+All packets are originated from the host a0::02 with destination a0::01.
+The following table describe the packets:
+
+Name                Description
+==========================================
+ns.pkt              Neighbor Solicitation
+na.pkt              Neighbor Advertisement
+echo-request.pkt    PING Echo-request
+echo-reply.pkt      PING Echo-reply
+
