@@ -65,20 +65,6 @@ static prot_mqueue_t mqueue;
 static int uart_fd;
 static bool ack;
 
-struct addressing {
-  /* specified from command line */
-  enum mac_addr_mode forced_sam;
-  enum mac_addr_mode forced_dam;
-  unsigned int forced;
-
-  /* specified from parsed addresses */
-  enum mac_addr_mode real_sam;
-  enum mac_addr_mode real_dam;
-  struct mac_addr saddr;
-  struct mac_addr daddr;
-  unsigned int pan_specified;
-};
-
 static void strtolower(char *s)
 {
   for(; *s != '\0' ; s++)
