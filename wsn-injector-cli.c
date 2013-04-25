@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
   const char *header_out  = NULL;
   unsigned short channel;
   speed_t speed = B0;
-  int timeout = 0;
+  int timeout   = 10;
 
   /* working frame */
   setup_default_frame(&frame);
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
       break;
     case('T'):
       timeout = atoi(optarg);
-      if(timeout <= 0)
+      if(timeout < 0)
         errx(EXIT_FAILURE, "invalid timeout value");
       break;
     case('C'):
