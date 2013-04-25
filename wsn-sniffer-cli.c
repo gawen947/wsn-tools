@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
   };
 
   while(1) {
-    int c = getopt_long(argc, argv, "hVp:cb:T:saSMPA", opts, NULL);
+    int c = getopt_long(argc, argv, "hVp:C:cb:T:saSMPA", opts, NULL);
 
     if(c == -1)
       break;
