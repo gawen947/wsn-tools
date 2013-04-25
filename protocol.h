@@ -43,6 +43,7 @@ enum prot_mtype { PROT_MTYPE_FRAME   = 0x00,
 /* protocol control type */
 enum prot_ctype { PROT_CTYPE_INFO = 0x00,
                   PROT_CTYPE_DEBUG,
+                  PROT_CTYPE_OK,
                   PROT_CTYPE_CLI_ERROR,
                   PROT_CTYPE_SRV_ERROR,
                   PROT_CTYPE_PING,
