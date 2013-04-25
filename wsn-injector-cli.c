@@ -15,6 +15,8 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
+#define _BSD_SOURCE
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <stdbool.h>
@@ -56,6 +58,7 @@ enum input_state { ST_NONE,
                    ST_WAITING_OK,
                    ST_WAITING_ACK };
 
+static struct timeval t_sent;
 static enum input_state state;
 static struct mac_frame frame;
 static prot_mqueue_t mqueue;
@@ -105,6 +108,8 @@ static bool parse_ok(void)
     errx(EXIT_FAILURE, "unexpected OK");
 
   if(ack) {
+    gettimeofday(&t_sent, NULL);
+
     /* now that we sent our message we may wait for the ACK */
     state = ST_WAITING_ACK;
     return true;
@@ -117,10 +122,17 @@ static bool parse_ok(void)
 
 static bool parse_ack(void)
 {
+  struct timeval now;
+  struct timeval delta;
+
   if(!ack || state != ST_WAITING_ACK)
     errx(EXIT_FAILURE, "unexpected ACK");
 
-  /* FIXME: We should display informations here. */
+  gettimeofday(&now, NULL);
+  timersub(&now, &t_sent, &delta);
+
+  printf("Frame acknowledged (%s)\n", tv_to_str(&delta));
+
   return false;
 }
 
@@ -499,7 +511,7 @@ int main(int argc, char *argv[])
       warnx("there are messages left on the buffer");
       break;
     case(-2):
-      warnx(ack ? "ACK reception has timed out" :
+      warnx(ack ? "Frame acknowledgment has timed out" :
                   "Processing confirmation has timed out");
       break;
     }
