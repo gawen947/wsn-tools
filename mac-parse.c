@@ -207,7 +207,7 @@ static void load_mac(const char *s, struct mac_addr *addr,
   case ':':
     eui64_check_byte(value);
 
-    *mode = MAM_FULL;
+    *mode = MAM_LONG;
     load_eui64(s, addr, value);
     break;
   case '\0':
