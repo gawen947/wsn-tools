@@ -37,7 +37,7 @@ static iofile_t pcap;
 #define WRITE(size)                                               \
   static void write ## size (uint ## size ## _t value) {          \
     ssize_t n = iobuf_write(pcap, &value, sizeof(value));         \
-    if(n != size)                                                 \
+    if(n != sizeof(value))                                        \
       err(EXIT_FAILURE, "cannot write to pcap file");             \
   }
 
