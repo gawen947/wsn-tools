@@ -64,4 +64,3 @@ enum prot_ctype { PROT_CTYPE_INFO = 0x00,
 
 #endif /* _PRIV_PROTOCOL_H_ */
 #endif /* _PROTOCOL_H_ */
-
