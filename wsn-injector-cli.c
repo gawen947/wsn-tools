@@ -199,6 +199,7 @@ int main(int argc, char *argv[])
   unsigned short channel;
   speed_t speed = B0;
   int timeout   = 10;
+  int beacon    = -1;
 
   /* working frame */
   setup_default_frame(&frame);
@@ -235,7 +236,8 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { 0, "commit", "Display commit information" },
 #endif /* COMMIT */
-    { 'T', "timeout", "Specify the timeout"},
+    { 'B', "beacon", "Repeat the transmission on an optional interval" },
+    { 'T', "timeout", "Specify the timeout" },
     { 'C', "channel", "Configure the channel" },
     { 'n', "dry-run", "Do not send the frame on UART" },
     { 'D', "display", "Display the reconstructed frame" },
@@ -270,6 +272,7 @@ int main(int argc, char *argv[])
 #ifdef COMMIT
     { "commit", no_argument, NULL, OPT_COMMIT },
 #endif /* COMMIT */
+    { "beacon", optional_argument, NULL, 'B' },
     { "timeout", required_argument, NULL, 'T' },
     { "channel", required_argument, NULL, 'C' },
     { "dry-run", no_argument, NULL, 'n' },
@@ -300,7 +303,8 @@ int main(int argc, char *argv[])
   };
 
   while(1) {
-    int c = getopt_long(argc, argv, "hVnDb:T:C:f:F:t:s:d:p:S:", long_opts, NULL);
+    int c = getopt_long(argc, argv, "hVnDB::b:T:C:f:F:t:s:d:p:S:",
+                        long_opts, NULL);
 
     if(c == -1)
       break;
@@ -317,6 +321,16 @@ int main(int argc, char *argv[])
       break;
     case 'b':
       speed = baud(optarg);
+      break;
+    case 'B':
+      if(optarg) {
+        beacon = atoi(optarg);
+
+        if(beacon < 0)
+          errx(EXIT_FAILURE, "invalid beacon value");
+      }
+      else
+        beacon = 1000; /* default beacon interval */
       break;
     case 'D':
       display = true;
@@ -485,26 +499,40 @@ int main(int argc, char *argv[])
        with a set of commands. */
     prot_mqueue_sendall(mqueue, uart_fd);
 
-    /* Write the frame to the transceiver */
-    prot_write(uart_fd, PROT_MTYPE_FRAME, frame_buffer, frame_size);
+    /* When the beacon mode is enabled we loop on the transmission. */
+    while(1) {
+      /* Write the frame to the transceiver */
+      prot_write(uart_fd, PROT_MTYPE_FRAME, frame_buffer, frame_size);
 
-    /* Read until timeout if an ACK was requested. */
-    state = ST_WAITING_OK;
-    ret = input_loop(uart_fd, message_cb, NULL, timeout);
+      /* Read until timeout if an ACK was requested.
+         Note that we do not send more than one packet
+         at a time as we would have to retain state fore
+         the ACK. */
+      state = ST_WAITING_OK;
+      ret = input_loop(uart_fd, message_cb, NULL, timeout);
 
-    switch(ret) {
-    case(-1):
-      warnx("there are messages left on the buffer");
-      break;
-    case(-2):
-      warnx(ack ? "Frame acknowledgment has timed out" :
-                  "Processing confirmation has timed out");
-      break;
+      switch(ret) {
+      case(-1):
+        /* FIXME: This may be problematic when we use the beacon mode.
+           Because the remaining messages in the buffer will be discarded. */
+        warnx("there are messages left on the buffer");
+        break;
+      case(-2):
+        warnx(ack ? "Frame acknowledgment has timed out" :
+                    "Processing confirmation has timed out");
+        break;
+      }
+
+      if(beacon != -1)
+        usleep(beacon * 1000);
+      else
+        break;
     }
   }
 
   exit_status = EXIT_SUCCESS;
 
 EXIT:
+  printf("beacon value %d\n", beacon);
   return exit_status;
 }
