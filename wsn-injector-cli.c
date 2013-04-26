@@ -533,6 +533,5 @@ int main(int argc, char *argv[])
   exit_status = EXIT_SUCCESS;
 
 EXIT:
-  printf("beacon value %d\n", beacon);
   return exit_status;
 }
