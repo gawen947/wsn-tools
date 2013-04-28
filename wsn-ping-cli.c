@@ -46,12 +46,17 @@
 
 #define TARGET "Ping-CLI"
 
-/* We have a queue which represents ping messages that are 'on air'.
-   To do that simply we use a pipe between the parent and his child.
-   This however may introduce some unwanted delay and we can do that
-   better. But we really want to keep it simplier as we want to test
-   the communication channel, the firmware and the protocol. */
-static int air_queue[2];
+/* The sequence number size may change.
+   The timevalue will always be defined
+   by its structure and the crc will
+   always be 32 bits wide. */
+typedef unsigned short seqno_t;
+
+#define PING_HDR_SIZE sizeof(seqno_t) + sizeof(struct timeval)
+#define PING_CRC_SIZE sizeof(uint32_t)
+
+#define MAX_PING_PADDING_SIZE MAX_MESSAGE_SIZE + 1 -              \
+                              (PING_HDR_SIZE + PING_CRC_SIZE + 2)
 
 /* Statistics */
 static unsigned int error;
@@ -65,14 +70,6 @@ static bool flood;
 static int count  = -1;
 static pid_t pid;
 static int fd;
-
-/* This structure represents ping messages lying on the communication channel or
-   being processed by the firmware. */
-struct on_air {
-  unsigned int seqno;
-  unsigned int size;
-  struct timeval tv;
-};
 
 static void apply_crc(const unsigned char *sbuf, size_t size)
 {
@@ -95,7 +92,7 @@ static bool check_crc(const unsigned char *buf, size_t size)
 
 static void print_ping(const struct timeval *delta,
                        unsigned int size,
-                       unsigned int seqno,
+                       seqno_t seqno,
                        const char *flood_status,
                        char status)
 {
@@ -121,34 +118,27 @@ static const char * time_ull_to_str(unsigned long long time)
 
 static void parse_ping_message(const unsigned char *data, size_t size)
 {
-  struct on_air air;
-  struct timeval tv;
+  struct timeval t_now, t_sent;
   struct timeval delta;
 
-  unsigned int seqno;
+  seqno_t seqno;
   unsigned long long time;
 
-  gettimeofday(&tv, NULL);        /* time received */
+  gettimeofday(&t_now, NULL);        /* time received */
 
-  /* Extract the packet from the air queue */
-  read(air_queue[0], &air, sizeof(struct on_air));
   if(count != -1)
     count--;
 
-  timersub(&tv, &air.tv, &delta); /* rtt */
+  /* Extract the PING header */
+  seqno  = *((seqno_t *)data);
+  t_sent = *((struct timeval *)(data + sizeof(seqno_t)));
+
+  timersub(&t_now, &t_sent, &delta); /* rtt */
 
   /* Check CRC */
-  if(!check_crc(data, size - 4)) {
+  if(!check_crc(data, size - PING_CRC_SIZE)) {
     error++;
-    print_ping(&delta, air.size, air.seqno, "\bE", 'E');
-    return;
-  }
-
-  /* Check if the sequence number match the on air packet. */
-  seqno = *((unsigned int *)data);
-  if(seqno != air.seqno) {
-    error++;
-    print_ping(&delta, air.size, air.seqno, "\be", 'e');
+    print_ping(&delta, size + 2, seqno, "\bE", 'E');
     return;
   }
 
@@ -161,7 +151,7 @@ static void parse_ping_message(const unsigned char *data, size_t size)
   sum    += time;
   sq_sum += time*time;
 
-  print_ping(&delta, air.size, air.seqno, "\b", '*');
+  print_ping(&delta, size + 2, seqno, "\b", '*');
   ok++;
 }
 
@@ -315,7 +305,7 @@ int main(int argc, char *argv[])
       break;
     case('s'):
       size = atoi(optarg);
-      if(size < 0 || size > 118)
+      if(size < 0 || size > MAX_PING_PADDING_SIZE)
         errx(EXIT_FAILURE, "invalid size value");
       break;
     case('f'):
@@ -358,10 +348,6 @@ int main(int argc, char *argv[])
   /* That's where we really start the operations */
   fd = open_uart(tty, speed);
 
-  /* We create the air queue (see comment about the air queue above) */
-  if(pipe(air_queue) < 0)
-    err(EXIT_FAILURE, "cannot create air queue");
-
   /* We divide the ping process in two. The parent sends pings and the child
      receives and displays the responses. We proceed that way to ensure that we
      use the same mechanisms (in particular the read buffer) that are used in
@@ -370,41 +356,34 @@ int main(int argc, char *argv[])
   if(pid < 0)
     err(EXIT_FAILURE, "cannot fork");
   else if(pid) { /* parent */
-    unsigned int seqno = 0;
+    seqno_t seqno = 0;
     unsigned char sbuf[128];
 
     /* We setup the send buffer. Note that we construct the ping message manually.
        We do this to avoid copying the message at each ping we want to send. */
-    sbuf[0] = PROT_MTYPE_CONTROL | (size + 8 + 1); /* size +
-                                                      control(8) +
-                                                      seqno(32) +
-                                                      crc(32) */
+    sbuf[0] = PROT_MTYPE_CONTROL | (size + PING_HDR_SIZE + PING_CRC_SIZE + 1);
 
     /* Control message type. */
     sbuf[1] = PROT_CTYPE_PING;
 
     /* We fill the message with random bytes. */
-    fill_with_random(sbuf + 2 /* mtype + ctype */ + 4 /* seqno */, size);
+    fill_with_random(sbuf + 2 /* mtype + ctype */ + PING_HDR_SIZE, size);
 
     while(1) {
-      struct on_air air;
+      struct timeval tv;
 
       usleep(interval);
 
-      /* Setup the sequence number */
-      *((unsigned int *)(sbuf + 2)) = seqno;
-      apply_crc(sbuf + 2, size + 4);
+      /* Create the ping template */
+      gettimeofday(&tv, NULL);
+
+      /* The ping header and apply the CRC */
+      *((seqno_t *)(sbuf + 2)) = seqno;
+      *((struct timeval *)(sbuf + 2 + sizeof(seqno_t))) = tv;
+      apply_crc(sbuf + 2, size + PING_HDR_SIZE);
 
       /* Send this message */
-      write(fd, sbuf, size + 2 + 8);
-
-      /* Create the ping template */
-      gettimeofday(&air.tv, NULL);
-      air.seqno = seqno;
-      air.size  = size + 8;
-
-      /* Add the message to the queue */
-      write(air_queue[1], &air, sizeof(struct on_air));
+      write(fd, sbuf, size + 2 + PING_HDR_SIZE + PING_CRC_SIZE);
 
       /* Stdout if needed */
       if(flood)
