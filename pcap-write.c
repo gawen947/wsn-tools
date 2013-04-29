@@ -22,15 +22,7 @@
 #include <err.h>
 
 #include "iobuf.h"
-
-/* Informations about the PCAP file format came from:
-   http://wiki.wireshark.org/Development/LibpcapFileFormat */
-
-#define PCAP_MAGIC 0xa1b2c3d4
-#define PCAP_MAJOR 2
-#define PCAP_MINOR 4
-
-#define LINKTYPE_IEEE802_15_4 195
+#include "pcap.h"
 
 static iofile_t pcap;
 
