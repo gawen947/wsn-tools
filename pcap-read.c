@@ -17,6 +17,7 @@
 
 #define _BSD_SOURCE
 
+#include <sys/time.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <endian.h>
@@ -27,7 +28,7 @@
 #include "pcap.h"
 
 static iofile_t pcap;
-static unsigned int timezone;
+static int timezone;
 static uint16_t (*ftoh16)(uint16_t);
 static uint32_t (*ftoh32)(uint32_t);
 
@@ -83,12 +84,12 @@ void open_reading_pcap(const char *path)
   else
     errx(EXIT_FAILURE, "invalid magic in pcap file");
 
-  read16(&pcap_major);     /* PCAP version */
+  read16(&pcap_major);           /* PCAP version */
   read16(&pcap_minor);
-  read32(&timezone);       /* timezone in seconds (GMT) */
-  read32(&accuracy);       /* accuracy of timestamps */
-  read32(&max_length);     /* max length of packets */
-  read32(&data_link_type); /* data link type */
+  read32((uint32_t *)&timezone); /* timezone in seconds (GMT) */
+  read32(&accuracy);             /* accuracy of timestamps */
+  read32(&max_length);           /* max length of packets */
+  read32(&data_link_type);       /* data link type */
 
   /* check version */
   if(pcap_major != PCAP_MAJOR || pcap_minor != PCAP_MINOR)
@@ -107,21 +108,23 @@ void open_reading_pcap(const char *path)
     errx(EXIT_FAILURE, "data link type not supported");
 }
 
-unsigned char * pcap_read_frame(size_t *size)
+unsigned char * pcap_read_frame(size_t *size, struct timeval *tv)
 {
   unsigned char *frame;
   uint32_t actual_size;
   ssize_t n;
-  struct timeval tv;
 
   /* If the pcap was not initialized we do nothing */
   if(!pcap)
     return NULL;
 
-  read32((uint32_t *)&tv.tv_sec);
-  read32((uint32_t *)&tv.tv_usec);
+  read32((uint32_t *)&tv->tv_sec);
+  read32((uint32_t *)&tv->tv_usec);
   read32((uint32_t *)size);
   read32(&actual_size);
+
+  /* correct the timezone */
+  tv->tv_sec += timezone;
 
   if(*size != actual_size)
     errx(EXIT_FAILURE, "incomplete frame in the pcap file");

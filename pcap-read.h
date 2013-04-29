@@ -18,6 +18,7 @@
 #ifndef _PCAP_READ_H_
 #define _PCAP_READ_H_
 
+#include <sys/time.h>
 #include <stdlib.h>
 
 /* Open a pcap file for reading only. */
@@ -26,7 +27,7 @@ void open_reading_pcap(const char *path);
 /* Read a frame from a pcap file. The function will allocate the buffer for
    the caller. However the caller has to free the buffer manually afterward.
    The size of the frame is passed through the size pointer argument. */
-unsigned char * pcap_read_frame(size_t *size);
+unsigned char * pcap_read_frame(size_t *size, struct timeval *tv);
 
 /* Close the pcap file. */
 void close_reading_pcap(void);
