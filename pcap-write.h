@@ -1,4 +1,4 @@
-/* File: pcap.h
+/* File: pcap-write.h
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -15,19 +15,19 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _PCAP_H_
-#define _PCAP_H_
+#ifndef _PCAP_WRITE_H_
+#define _PCAP_WRITE_H_
 
-/* Initialize the PCAP output. */
-void init_pcap(const char *path);
+/* Initialize the PCAP output for writing only. */
+void open_writing_pcap(const char *path);
 
 /* Append a MAC frame to the PCAP file. */
-void append_frame(const unsigned char *frame, unsigned int size);
+void pcap_append_frame(const unsigned char *frame, unsigned int size);
 
 /* Flush the PCAP file. */
-void flush_pcap(void);
+void pcap_write_flush(void);
 
 /* Close the PCAP file. */
-void destroy_pcap(void);
+void close_writing_pcap(void);
 
-#endif /* _PCAP_H_ */
+#endif /* _PCAP_WRITING_H_ */

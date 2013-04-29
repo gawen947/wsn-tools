@@ -28,7 +28,7 @@
 #include <err.h>
 
 #include "version.h"
-#include "pcap.h"
+#include "pcap-write.h"
 #include "dump.h"
 #include "help.h"
 #include "uart.h"
@@ -79,7 +79,7 @@ static void parse_frame_message(const unsigned char *data, size_t size)
   putchar('\n');
 
   /* Append the frame to the PCAP file. */
-  append_frame(data, size);
+  pcap_append_frame(data, size);
 
   /* FIXME: This particular free call may be spared if we provided a way for
      mac_decode to avoid copying the payload. */
@@ -122,7 +122,7 @@ static void cleanup(void)
   close(fd);
 
   /* Ensure that the PCAP file is closed properly to flush buffers. */
-  destroy_pcap();
+  close_writing_pcap();
 
   /* Destroy the message queue. */
   prot_mqueue_destroy(mqueue);
@@ -135,7 +135,7 @@ static void sig_cleanup(int signum)
 
 static void sig_flush(int signum)
 {
-  flush_pcap();
+  pcap_write_flush();
 }
 
 int main(int argc, char *argv[])
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
     warnx("doing nothing as requested");
 
   if(pcap)
-    init_pcap(pcap);
+    open_writing_pcap(pcap);
 
   /* Register the cleanup function as the most common way to leave the event
      loop is SIGINT. The program may also quit because of an error or the

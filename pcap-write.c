@@ -44,7 +44,7 @@ static iofile_t pcap;
 WRITE(32)
 WRITE(16)
 
-void init_pcap(const char *path)
+void open_writing_pcap(const char *path)
 {
   /* TODO: Append to the file if it already exists.
            Well we could do this but will have to take
@@ -64,7 +64,7 @@ void init_pcap(const char *path)
   write32(LINKTYPE_IEEE802_15_4); /* data link type */
 }
 
-void append_frame(const unsigned char *frame, unsigned int size)
+void pcap_append_frame(const unsigned char *frame, unsigned int size)
 {
   ssize_t n;
   struct timeval tv;
@@ -96,13 +96,13 @@ void append_frame(const unsigned char *frame, unsigned int size)
     err(EXIT_FAILURE, "cannot write to pcap file");
 }
 
-void flush_pcap(void)
+void pcap_write_flush(void)
 {
   if(pcap)
     iobuf_flush(pcap);
 }
 
-void destroy_pcap(void)
+void close_writing_pcap(void)
 {
   if(pcap)
     iobuf_close(pcap);
