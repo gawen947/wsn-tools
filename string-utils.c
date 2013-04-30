@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 void fill_with_random(unsigned char *buf, unsigned int size)
@@ -56,4 +57,11 @@ const char * tv_to_str(const struct timeval *tv)
     sprintf(buf, "%ld us", tv->tv_usec);
 
   return buf;
+}
+
+void * memdup(const void *buf, size_t size)
+{
+  void *new_buf = malloc(size);
+
+  return memcpy(new_buf, buf, size);
 }

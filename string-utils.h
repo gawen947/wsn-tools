@@ -18,6 +18,7 @@
 #ifndef _STRING_UTILS_H_
 #define _STRING_UTILS_H_
 
+#include <stdlib.h>
 #include <sys/time.h>
 
 /* Write a string litteral. */
@@ -29,5 +30,8 @@ void fill_with_random(unsigned char *buf, unsigned int size);
 /* Convert a timeval structure seen as a duration to a string.
    The most common usage for this function is to represent latencies. */
 const char * tv_to_str(const struct timeval *tv);
+
+/* Duplicate a buffer. */
+void * memdup(const void *buf, size_t size);
 
 #endif /* _STRING_UTILS_H_ */
