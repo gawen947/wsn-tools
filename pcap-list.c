@@ -31,7 +31,7 @@ static struct pcap_node *cursor;
 static size_t size;
 static unsigned int index;
 
-static void (*_gui_warn)(const char *fmt, ...);
+static void (*_gui_warn)(const char *message);
 
 static struct pcap_node * load_frame(void)
 {
@@ -70,7 +70,7 @@ static struct pcap_node * load_frame(void)
   return node;
 }
 
-void pcap_list_init(void (*gui_warn)(const char *, ...))
+void pcap_list_init(void (*gui_warn)(const char *))
 {
   _gui_warn = gui_warn;
 }

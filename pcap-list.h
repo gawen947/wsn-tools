@@ -40,7 +40,7 @@ enum cursor_whence { CURSOR_SEEK_SET,
 
 /* Init the list with a function used when a warning
    message has to be issued to the user via the GUI. */
-void pcap_list_init(void (*gui_warn)(const char *, ...));
+void pcap_list_init(void (*gui_warn)(const char *));
 
 /* Load the list from a PCAP file. If the list was not
    empty then it will be flushed. That is, elements will

@@ -33,7 +33,7 @@
 
 #define TARGET "Frame-Selector"
 
-static void (*warn_gui)(const char *fmt, ...) = warn_text_gui;
+static void (*warn_gui)(const char *fmt) = warn_text_gui;
 static void (*init_gui)(void (*exit_cb)(void),
                         void (*save_cb)(void),
                         void (*save_as_cb)(const char *),

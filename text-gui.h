@@ -18,7 +18,7 @@
 #ifndef _TEXT_GUI_H_
 #define _TEXT_GUI_H_
 
-void warn_text_gui(const char *fmt, ...);
+void warn_text_gui(const char *message);
 void init_text_gui(void (*exit_cb)(void),
                              void (*save_cb)(void),
                              void (*save_as_cb)(const char *),
