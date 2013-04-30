@@ -26,7 +26,8 @@ void open_reading_pcap(const char *path);
 
 /* Read a frame from a pcap file. The function will allocate the buffer for
    the caller. However the caller has to free the buffer manually afterward.
-   The size of the frame is passed through the size pointer argument. */
+   The size of the frame is passed through the size pointer argument.
+   The function returns NULL when there are no more frames to read. */
 unsigned char * pcap_read_frame(size_t *size, struct timeval *tv);
 
 /* Close the pcap file. */

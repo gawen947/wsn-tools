@@ -35,7 +35,9 @@ static uint32_t (*ftoh32)(uint32_t);
 #define READ(size)                                              \
   static void read ## size (uint ## size ## _t *value) {        \
     ssize_t n = iobuf_read(pcap, value, sizeof(value));         \
-    if(n != sizeof(value))                                      \
+    if(n == 0)                                                  \
+      errx(EXIT_FAILURE, "unexpected end-of-file");             \
+    else if(n != sizeof(value))                                 \
       err(EXIT_FAILURE, "cannot read from pcap file");          \
     *value = ftoh ## size (*value);                             \
   }
@@ -117,6 +119,15 @@ unsigned char * pcap_read_frame(size_t *size, struct timeval *tv)
   /* If the pcap was not initialized we do nothing */
   if(!pcap)
     return NULL;
+
+  /* We have to do the first read manually because
+     we must take care of the end-of-file that could
+     only arise when starting a new frame. */
+  n = iobuf_read(pcap, &tv->tv_sec, sizeof(uint32_t));
+  if(!n) /* end-of-file */
+    return NULL;
+  else if(n != sizeof(uint32_t))
+    err(EXIT_FAILURE, "cannot read from pcap file");
 
   read32((uint32_t *)&tv->tv_sec);
   read32((uint32_t *)&tv->tv_usec);
