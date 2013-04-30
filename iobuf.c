@@ -116,7 +116,9 @@ ssize_t iobuf_read(iofile_t file, void *buf, size_t count)
 
     if(file->read_size == 0) {
       partial_read = read(file->fd, file->buf + IOBUF_SIZE, IOBUF_SIZE);
-      if(partial_read <= 0)
+      if(partial_read == 0) /* end-of-file */
+        return ret - count;
+      else if(partial_read < 0) /* read error */
         return partial_read;
 
       file->read_size = partial_read;
