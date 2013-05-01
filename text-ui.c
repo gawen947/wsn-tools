@@ -459,6 +459,12 @@ static bool parse_line(char *l)
   command = strtok(l, " \n");
   argument = strtok(NULL, " \n");
 
+  /* When the user enter an empty string
+     there will be no token anymore. Hence
+     a null command. */
+  if(!command)
+    return true;
+
   return check_command(command, argument);
 }
 
