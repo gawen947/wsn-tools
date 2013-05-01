@@ -196,12 +196,13 @@ static bool list_foreach(const struct pcap_node *node,
   else
     fputc(' ', stdout);
 
-  printf("%d @[%s] : ", data->count, tv_to_str(&node->time));
+  printf("%3d @[%d.%06d] : ", data->count, node->time.tv_sec, node->time.tv_usec);
 
   if(!node->valid_frame)
     printf("invalid frame");
   else {
     mac_display_type(&node->frame);
+    printf(" (%d)", node->frame.seqno);
     printf(" from ");
     mac_display_saddr(&node->frame);
     printf(" to ");
