@@ -129,7 +129,6 @@ unsigned char * pcap_read_frame(size_t *size, struct timeval *tv)
   else if(n != sizeof(uint32_t))
     err(EXIT_FAILURE, "cannot read from pcap file");
 
-  read32((uint32_t *)&tv->tv_sec);
   read32((uint32_t *)&tv->tv_usec);
   read32((uint32_t *)size);
   read32(&actual_size);

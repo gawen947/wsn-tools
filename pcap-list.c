@@ -53,7 +53,8 @@ static struct pcap_node * load_frame(void)
   node->data = frame;
   node->valid_frame = true;
 
-  tail->next = node;
+  if(tail)
+    tail->next = node;
   tail = node;
 
   if(!head) {
@@ -85,9 +86,11 @@ void pcap_list_load_from_file(const char *filename)
 
   open_reading_pcap(filename);
 
-  if(!load_frame())
-    goto EOF;
-  count++;
+  while(1) {
+    if(!load_frame())
+      goto EOF;
+    count++;
+  }
 
 EOF:
   size = count;
