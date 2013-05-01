@@ -25,10 +25,13 @@
 #include <string.h>
 #include <err.h>
 
+#include "version.h"
 #include "dump.h"
 #include "mac-display.h"
 #include "string-utils.h"
 #include "pcap-list.h"
+
+#define TARGET "Frame-Selector (text-ui)"
 
 #define MAX_LINE 1024
 
@@ -124,7 +127,7 @@ static bool cmd_help(const char *arg)
       padding(strlen(h->argument), max_arg);
     }
     else
-      padding(strlen(h->name), max_cmd + max_arg + 2);
+      padding(strlen(h->name), max_cmd + max_arg + 3);
     printf("%s\n", h->help);
   }
 
@@ -214,9 +217,14 @@ static bool cmd_list(const char *arg)
 {
   struct list_foreach_data data = { .count = 0,
                                     .curpos = pcap_list_cursor_position() };
+  size_t size = pcap_list_size();
 
   if(arg)
     warn_text_gui("Unexpected argument for the list command");
+
+
+  if(size == 0)
+    warn_text_gui("Nothing to display");
 
   pcap_list_for_each(list_foreach, &data);
 
@@ -448,17 +456,21 @@ static bool parse_line(char *l)
   /* skip leading spaces */
   for(; isspace(*l) ; l++);
 
-  command  = l;
-  argument = strtok(l, " ");
+  command = strtok(l, " \n");
+  argument = strtok(NULL, " \n");
 
   return check_command(command, argument);
 }
 
 void main_text_gui(void)
 {
+  version(TARGET);
+  fputc('\n', stdout);
+
   while(1) {
     char line[MAX_LINE];
 
+    printf("> ");
     fgets(line, MAX_LINE, stdin);
 
     if(!parse_line(line))

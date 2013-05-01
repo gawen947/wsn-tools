@@ -62,7 +62,8 @@ static void save_as_cb(const char *path)
 
 static void save_cb(void)
 {
-  save_as_cb(filename);
+  if(filename)
+    save_as_cb(filename);
 }
 
 static void exit_cb(void)
@@ -160,8 +161,10 @@ int main(int argc, char *argv[])
 
   /* Start the GUI. */
   main_gui();
+  exit_status = EXIT_SUCCESS;
 
 EXIT:
+  exit_gui();
   return exit_status;
 }
 
