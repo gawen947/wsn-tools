@@ -15,7 +15,7 @@ SNIFFER_OBJ  = version.o iobuf.o dump.o help.o mac-display.o mac-decode.o pcap-w
 INJECTOR_OBJ = version.o uart.o getflg.o atoi-gen.o help.o dump.o mac-encode.o mac-decode.o mac-display.o mac-parse.o \
                wsn-injector-cli.o signal-utils.o input.o 802154-parse.o protocol-mqueue.o protocol.o string-utils.o
 PING_OBJ     = version.o uart.o help.o protocol.o input.o signal-utils.o wsn-ping-cli.o string-utils.o dump.o crc32.o
-SELECTOR_OBJ = version.o help.o pcap-write.o pcap-read.o pcap-list.o iobuf.o dump.o selector.o
+SELECTOR_OBJ = version.o help.o pcap-write.o pcap-read.o pcap-list.o iobuf.o dump.o selector.o text-gui.o mac-decode.o string-utils.o mac-display.o
 
 PREFIX  ?= /usr/local
 BIN     ?= /bin

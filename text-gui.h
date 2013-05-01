@@ -20,9 +20,9 @@
 
 void warn_text_gui(const char *message);
 void init_text_gui(void (*exit_cb)(void),
-                             void (*save_cb)(void),
-                             void (*save_as_cb)(const char *),
-                             void (*open_cb)(const char *));
+                   void (*save_cb)(void),
+                   void (*save_as_cb)(const char *),
+                   void (*open_cb)(const char *));
 void main_text_gui(void);
 void exit_text_gui(void);
 

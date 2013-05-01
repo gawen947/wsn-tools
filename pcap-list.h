@@ -18,8 +18,9 @@
 #ifndef _PCAP_LIST_H_
 #define _PCAP_LIST_H_
 
-#include <stdbool.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <stdbool.h>
 
 #include "mac.h"
 

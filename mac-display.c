@@ -46,6 +46,11 @@ static void display_mac_type(enum mac_type type)
   }
 }
 
+void mac_display_type(const struct mac_frame *frame)
+{
+  display_mac_type(frame->fcs & MC_TYPE);
+}
+
 static void display_mac_addr_mode(enum mac_addr_mode am)
 {
   switch(am) {
@@ -102,6 +107,16 @@ static void display_addr(enum mac_addr_mode am, const struct mac_addr *addr)
     break;
   }
   printf("\n");
+}
+
+void mac_display_saddr(const struct mac_frame *frame)
+{
+  display_addr(frame->fcs & MC_SAM, &frame->src);
+}
+
+void mac_display_daddr(const struct mac_frame *frame)
+{
+  display_addr(frame->fcs & MC_DAM, &frame->dst);
 }
 
 void mac_display(const struct mac_frame *frame, unsigned int info)

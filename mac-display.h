@@ -31,4 +31,13 @@ enum mac_info { MI_CONTROL = 0x1, /* display frame control */
    the MAC frame to display. */
 void mac_display(const struct mac_frame *frame, unsigned int info);
 
+/* Display the type of the MAC frame. */
+void mac_display_type(const struct mac_frame *frame);
+
+/* Display the source MAC address. */
+void mac_display_saddr(const struct mac_frame *frame);
+
+/* Display the destination MAC address. */
+void mac_display_daddr(const struct mac_frame *frame);
+
 #endif /* _MAC_DISPLAY_H_ */
