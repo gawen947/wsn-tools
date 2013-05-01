@@ -192,11 +192,14 @@ static bool list_foreach(const struct pcap_node *node,
   data->count++;
 
   if(data->count == data->curpos)
-    fputc('>', stdout);
+    fputc('*', stdout);
   else
     fputc(' ', stdout);
 
-  printf("%3d @[%d.%06d] : ", data->count, node->time.tv_sec, node->time.tv_usec);
+  printf("%3d @[%u.%06u] : ",
+         data->count,
+         (uint32_t)node->time.tv_sec,
+         (uint32_t)node->time.tv_usec);
 
   if(!node->valid_frame)
     printf("invalid frame");
