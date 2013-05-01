@@ -188,13 +188,13 @@ static bool list_foreach(const struct pcap_node *node,
                          void *pdata)
 {
   struct list_foreach_data *data = pdata;
-
   data->count++;
 
-  if(data->count == data->curpos)
+  if(data->count == (data->curpos+1))
     fputc('*', stdout);
   else
     fputc(' ', stdout);
+
 
   printf("%3d @[%u.%06u] : ",
          data->count,
@@ -264,6 +264,11 @@ static bool cmd_goto(const char *arg)
   }
 
   position = atoi(arg);
+
+  if(position < 1)
+    position = 1;
+  position--;
+
   pcap_list_cursor_seek(position, CURSOR_SEEK_SET);
 
 EXIT:
