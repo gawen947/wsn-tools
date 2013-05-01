@@ -1,4 +1,4 @@
-/* File: text-gui.h
+/* File: text-ui.h
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -15,15 +15,15 @@
    You should have received a copy of the GNU General Public License
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _TEXT_GUI_H_
-#define _TEXT_GUI_H_
+#ifndef _TEXT_UI_H_
+#define _TEXT_UI_H_
 
-void warn_text_gui(const char *message);
-void init_text_gui(void (*exit_cb)(void),
+void warn_text_ui(const char *message);
+void init_text_ui(void (*exit_cb)(void),
                    void (*save_cb)(void),
                    void (*save_as_cb)(const char *),
                    void (*open_cb)(const char *));
-void main_text_gui(void);
-void exit_text_gui(void);
+void main_text_ui(void);
+void exit_text_ui(void);
 
-#endif /* _TEXT_GUI_H_ */
+#endif /* _TEXT_UI_H_ */

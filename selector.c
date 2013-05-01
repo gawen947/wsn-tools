@@ -28,18 +28,18 @@
 #include "version.h"
 #include "pcap-list.h"
 #include "pcap-write.h"
-#include "text-gui.h"
+#include "text-ui.h"
 #include "help.h"
 
 #define TARGET "Frame-Selector"
 
-static void (*warn_gui)(const char *fmt) = warn_text_gui;
-static void (*init_gui)(void (*exit_cb)(void),
+static void (*warn_ui)(const char *fmt) = warn_text_ui;
+static void (*init_ui)(void (*exit_cb)(void),
                         void (*save_cb)(void),
                         void (*save_as_cb)(const char *),
-                        void (*open_cb)(const char *)) = init_text_gui;
-static void (*main_gui)(void) = main_text_gui;
-static void (*exit_gui)(void) = exit_text_gui;
+                        void (*open_cb)(const char *)) = init_text_ui;
+static void (*main_ui)(void) = main_text_ui;
+static void (*exit_ui)(void) = exit_text_ui;
 
 /* The filename of the current list. This variable can be NULL which
    means that no file has been opened. */
@@ -133,13 +133,13 @@ int main(int argc, char *argv[])
     }
   }
 
-  /* Initialise the GUI. */
-  init_gui(exit_cb,
+  /* Initialise the UI. */
+  init_ui(exit_cb,
            save_cb,
            save_as_cb,
            open_cb);
 
-  pcap_list_init(warn_gui);
+  pcap_list_init(warn_ui);
 
   if((argc - optind) == 1) {
     int ret;
@@ -159,12 +159,12 @@ int main(int argc, char *argv[])
     }
   }
 
-  /* Start the GUI. */
-  main_gui();
+  /* Start the UI. */
+  main_ui();
   exit_status = EXIT_SUCCESS;
 
 EXIT:
-  exit_gui();
+  exit_ui();
   return exit_status;
 }
 

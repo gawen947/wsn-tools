@@ -1,4 +1,4 @@
-/* File: text-gui.c
+/* File: text-ui.c
 
    Copyright (C) 2013 David Hauweele <david@hauweele.net>
 
@@ -45,12 +45,12 @@ static void (*_save_cb)(void);
 static void (*_save_as_cb)(const char *);
 static void (*_open_cb)(const char *);
 
-void warn_text_gui(const char *message)
+void warn_text_ui(const char *message)
 {
   warnx("%s", message);
 }
 
-void init_text_gui(void (*exit_cb)(void),
+void init_text_ui(void (*exit_cb)(void),
                    void (*save_cb)(void),
                    void (*save_as_cb)(const char *),
                    void (*open_cb)(const char *))
@@ -104,7 +104,7 @@ static bool cmd_help(const char *arg)
   const struct cmd_help *h;
 
   if(arg)
-    warn_text_gui("Unexpected argument for the help command");
+    warn_text_ui("Unexpected argument for the help command");
 
   /* maximum name size for padding */
   for(h = helps ; h->name ; h++) {
@@ -165,7 +165,7 @@ EXIT:
 static bool cmd_open(const char *arg)
 {
   if(!arg) {
-    warn_text_gui("Expected a file for the open command");
+    warn_text_ui("Expected a file for the open command");
     goto EXIT;
   }
 
@@ -220,11 +220,11 @@ static bool cmd_list(const char *arg)
   size_t size = pcap_list_size();
 
   if(arg)
-    warn_text_gui("Unexpected argument for the list command");
+    warn_text_ui("Unexpected argument for the list command");
 
 
   if(size == 0)
-    warn_text_gui("Nothing to display");
+    warn_text_ui("Nothing to display");
 
   pcap_list_for_each(list_foreach, &data);
 
@@ -234,7 +234,7 @@ static bool cmd_list(const char *arg)
 static bool cmd_next(const char *arg)
 {
   if(arg)
-    warn_text_gui("Unexpected argument for the next command");
+    warn_text_ui("Unexpected argument for the next command");
 
   pcap_list_cursor_next();
 
@@ -244,7 +244,7 @@ static bool cmd_next(const char *arg)
 static bool cmd_prev(const char *arg)
 {
   if(arg)
-    warn_text_gui("Unexpected argument for the prev command");
+    warn_text_ui("Unexpected argument for the prev command");
 
   pcap_list_cursor_prev();
 
@@ -255,7 +255,7 @@ static bool cmd_goto(const char *arg)
 {
   unsigned int position;
   if(!arg) {
-    warn_text_gui("Expected a position for the goto command");
+    warn_text_ui("Expected a position for the goto command");
     goto EXIT;
   }
 
@@ -276,7 +276,7 @@ static bool cmd_view(const char *arg)
   node = pcap_list_get_at_cursor();
 
   if(!node) {
-    warn_text_gui("Nothing selected");
+    warn_text_ui("Nothing selected");
     goto EXIT;
   }
 
@@ -312,13 +312,13 @@ static ssize_t load_file(const char *filename, unsigned char *frame)
   int fd = open(filename, O_RDONLY);
 
   if(fd < 0) {
-    warn_text_gui("Cannot open");
+    warn_text_ui("Cannot open");
     return -1;
   }
 
   n = read(fd, frame, 128);
   if(n < 0) {
-    warn_text_gui("Read error");
+    warn_text_ui("Read error");
     return -1;
   }
 
@@ -346,7 +346,7 @@ static bool cmd_insert(const char *arg)
   unsigned char frame[128];
 
   if(!arg) {
-    warn_text_gui("Expected a filename for the insert command");
+    warn_text_ui("Expected a filename for the insert command");
     goto EXIT;
   }
 
@@ -366,7 +366,7 @@ static bool cmd_replace(const char *arg)
   unsigned char frame[128];
 
   if(!arg) {
-    warn_text_gui("Expected a filename for the replace command");
+    warn_text_ui("Expected a filename for the replace command");
     goto EXIT;
   }
 
@@ -387,26 +387,26 @@ static bool cmd_extract(const char *arg)
   int fd;
 
   if(!arg) {
-    warn_text_gui("Expected a filename for the extract command");
+    warn_text_ui("Expected a filename for the extract command");
     goto EXIT;
   }
 
   fd = open(arg, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   if(fd < 0) {
-    warn_text_gui("Cannot open the file");
+    warn_text_ui("Cannot open the file");
     goto EXIT;
   }
 
   node = pcap_list_get_at_cursor();
 
   if(!node) {
-    warn_text_gui("Nothing selected");
+    warn_text_ui("Nothing selected");
     goto EXIT;
   }
 
   n = write(fd, node->data, node->size);
   if(n != node->size)
-    warn_text_gui("Invalid write");
+    warn_text_ui("Invalid write");
 
   close(fd);
 
@@ -444,7 +444,7 @@ static bool check_command(const char *cmd, const char *arg)
     if(!strcmp(cmd, c->name))
       return c->func(arg);
 
-  warn_text_gui("Unknown command, type 'help' for a list");
+  warn_text_ui("Unknown command, type 'help' for a list");
   return true;
 }
 
@@ -462,7 +462,7 @@ static bool parse_line(char *l)
   return check_command(command, argument);
 }
 
-void main_text_gui(void)
+void main_text_ui(void)
 {
   version(TARGET);
   fputc('\n', stdout);
@@ -478,5 +478,4 @@ void main_text_gui(void)
   }
 }
 
-void exit_text_gui(void) {}
-
+void exit_text_ui(void) {}
