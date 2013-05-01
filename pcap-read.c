@@ -32,14 +32,14 @@ static int timezone;
 static uint16_t (*ftoh16)(uint16_t);
 static uint32_t (*ftoh32)(uint32_t);
 
-#define READ(size)                                              \
-  static void read ## size (uint ## size ## _t *value) {        \
-    ssize_t n = iobuf_read(pcap, value, sizeof(value));         \
-    if(n == 0)                                                  \
-      errx(EXIT_FAILURE, "unexpected end-of-file");             \
-    else if(n != sizeof(value))                                 \
-      err(EXIT_FAILURE, "cannot read from pcap file");          \
-    *value = ftoh ## size (*value);                             \
+#define READ(size)                                                      \
+  static void read ## size (uint ## size ## _t *value) {                \
+    ssize_t n = iobuf_read(pcap, value, sizeof(uint ## size ## _t));    \
+    if(n == 0)                                                          \
+      errx(EXIT_FAILURE, "unexpected end-of-file");                     \
+    else if(n != sizeof(uint ## size ## _t))                            \
+      err(EXIT_FAILURE, "cannot read from pcap file");                  \
+    *value = ftoh ## size (*value);                                     \
   }
 
 READ(32)
@@ -47,7 +47,7 @@ READ(16)
 
 #define _FxTOH(endian, size) \
   static uint ## size ## _t _ ## endian ## size ## toh(uint ## size ## _t value) { \
-    return _ ## endian ## size ## toh(value);                           \
+    return endian ## size ## toh(value);                                \
   }
 
 _FxTOH(be, 16)
