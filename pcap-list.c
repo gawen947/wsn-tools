@@ -24,6 +24,7 @@
 #include "mac-decode.h"
 #include "pcap-read.h"
 #include "pcap-list.h"
+#include "dump.h"
 
 static struct pcap_node *head;
 static struct pcap_node *tail;
@@ -81,6 +82,7 @@ void pcap_list_init(void (*ui_warn)(const char *))
 void pcap_list_load_from_file(const char *filename)
 {
   size_t count = 0;
+  dirty = false;
 
   /* Flush the list if needed. */
   if(head)
