@@ -54,6 +54,9 @@ void pcap_list_flush(void);
 /* Get the size of the list. An empty list is of zero size. */
 size_t pcap_list_size(void);
 
+/* Specify if the list has been modified or not */
+bool pcap_list_dirty(void);
+
 /* Get the position of the cursor, starting at one.
    Zero means the position empty in the empty list. */
 unsigned int pcap_list_cursor_position(void);

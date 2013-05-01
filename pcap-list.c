@@ -30,6 +30,7 @@ static struct pcap_node *tail;
 static struct pcap_node *cursor;
 static size_t size;
 static unsigned int index;
+static bool dirty;
 
 static void (*_ui_warn)(const char *message);
 
@@ -74,6 +75,7 @@ static struct pcap_node * load_frame(void)
 void pcap_list_init(void (*ui_warn)(const char *))
 {
   _ui_warn = ui_warn;
+  dirty    = false;
 }
 
 void pcap_list_load_from_file(const char *filename)
@@ -123,11 +125,17 @@ void pcap_list_flush(void)
   cursor = NULL;
   size   = 0;
   index  = 0;
+  dirty  = false;
 }
 
 size_t pcap_list_size(void)
 {
   return size;
+}
+
+bool pcap_list_dirty(void)
+{
+  return dirty;
 }
 
 unsigned int pcap_list_cursor_position(void)
@@ -213,6 +221,7 @@ void pcap_list_delete_at_cursor(void)
   if(!cursor)
     return;
 
+  dirty = true;
   size--;
 
   if(cursor->next) {
@@ -260,6 +269,7 @@ void pcap_list_insert_at_cursor(const unsigned char *frame,
   struct pcap_node *node = malloc(sizeof(struct pcap_node));
 
   size++;
+  dirty = true;
 
   node->data = memdup(frame, size);
   node->prev = cursor;
@@ -300,6 +310,7 @@ void pcap_list_replace_at_cursor(const unsigned char *frame,
   /* we don't want to replace an element in an empty list */
   assert(cursor);
 
+  dirty = true;
   free_pcap_node(cursor);
 
   cursor->data = memdup(frame, size);

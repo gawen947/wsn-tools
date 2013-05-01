@@ -62,7 +62,7 @@ static void save_as_cb(const char *path)
 
 static void save_cb(void)
 {
-  if(filename)
+  if(filename && pcap_list_dirty())
     save_as_cb(filename);
 }
 
