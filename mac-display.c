@@ -77,7 +77,7 @@ static void display_addr(enum mac_addr_mode am, const struct mac_addr *addr)
 
   switch(am) {
   case(MAM_FULL):
-    printf("ignored\n");
+    printf("ignored");
     return;
   case(MAM_RESERVED):
     printf("(reserved) ");
