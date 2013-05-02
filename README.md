@@ -105,6 +105,16 @@ WSN-Ping-CLI
 This tool allows to ping a firmware. This can be used to check that the firmware receive
 and send messages correctly on UART. It can also be used to check the UART line itself.
 
+### Usage examples
+
+Ping the firmware on ttyUSB1.
+
+> wsn-ping-cli -b 115200 /dev/ttyUSB1
+
+Flood ping with an interval of ten milleseconds between each message.
+
+> wsn-ping-cli -f -i 10 -b 115200 /dev/ttyUSB1 
+
 PCAP-Selector
 -------------
 
