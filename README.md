@@ -14,17 +14,17 @@ that it only cares about the transceiver manipulation (i.e. sending and receivin
 frames) and UART interrupts. The repository only contains the abstraction code now.
 Complete example of firmwares will be added in the future. The firmware used for
 development uses a MRF24J40 transceiver driven by an AVR ATmega328P microcontroller.
-However it is not clean enough to be included in the repository. Other examples are 
-welcome.
+Albeit it is not clean enough to be included in the repository, an archive of the
+original firmwares is available on the main page. Other examples are welcome.
 
 TODO
 ----
 
-* Firmware examples with Contiki, TinyOS, ...
+* A firmware example.
 * Debug the still very experimental pcap-selector.
 * Add an ncurses user interface for pcap-selector.
-* Better documentation
-* Check with other architectures (FreeBSD, Mac, Windows ?)
+* Better documentation.
+* Check with other architectures (FreeBSD, Mac, Windows ?).
 * Add a command to replay a PCAP file.
 * Do not print informations directly to stdout with mac display functions.
 
@@ -55,11 +55,12 @@ Sensor Networks. This program reads frames from the transceiver with UART and
 displays them live and decoded to the user. It can also write frames into a PCAP
 file.
 
-###_Usage examples
+### Usage examples
 
 Display frame control information reading from ttyUSB1 at 115200 bauds.
+Configure the transceiver to use channel 11.
 
-> wsn-sniffer-cli -c -b 115200 /dev/ttyUSB1
+> wsn-sniffer-cli -C 11 -c -b 115200 /dev/ttyUSB1
 
 Display all informations from the decoded frames and display a hexadecimal dump
 of the payload.
@@ -74,31 +75,46 @@ a PCAP file.
 WSN-Injector-CLI
 ----------------
 
+This tool allows to craft and dissect IEEE 802.15.4 MAC frames. That is selecting 
+and replacing the different parts of the frame (header, payload), and changing each
+element of the MAC frame individually. It may subsequently inject these frames into
+a lowpan, or save the frame or its different parts into files.
+
+### Usage examples
+
+Display a default frame. Do not send anything (dryrun).
+
+> wsn-injector-cli -n -D
+
+Change the sequence number and type of the frame.
+
+> wsn-injector-cli -n -D --seqno 3 --type ACK
+
+Load the frame from a file, change its sequence number, source address and destination
+address. Then save the header, the payload and the complete frame into different files.
+
+> wsn-injector-cli -n -D --frame base.frm --seqno 3 --saddr --saddr ABCD-0001   \
+                   --daddr ABCD-0a:1b:2c:3d:4e:5f:6a:7b --write-haeader new.hdr \
+                   --write-payload new.pkt --write-frame new.frame
+
+Broadcast a frame on channel 11 with a random payload.
+
+> wsn-injector-cli -D -C 11 --random-payload --daddr ABCD-FFFF -b 115200 /dev/ttyUSB1
+
 WSN-Ping-CLI
 ------------
+
+This tool allows to ping a firmware. This can be used to check that the firmware receive
+and send messages correctly on UART. It can also be used to check the UART line itself.
 
 PCAP-Selector
 -------------
 
-Firmware example
-----------------
+This tool is still very experimental. It allows to open a PCAP file containing 802.15.4
+MAC frames and to interactively extract replace or insert frames into this PCAP. It was
+made to easily extract frames from a PCAP containing 6LoWPAN payloads one want to reinject
+into the lowpan. The PCAP selector was made to support multiple user interfaces. For now
+only a textual user interface is available. However another possible user interface could
+use ncurses and display the decoded frame as one navigate through the PCAP. This will
+hopefully be the default user interface in the future.
 
-FIXME: This example is obsolete.
-The following is a basic example of how you may use the helper functions within
-the sniffer firmware.
-
-    #include "wsn-sniffer.h"
-
-    /* Sends data on UART. */
-    static void send_on_uart(const unsigned char *data, unsigned int size);
-
-    void start()
-    {
-        (...)
-
-        /* Sends an information message to the client. */
-        send_info("Hello world!\n", send_on_uart);
-
-        /* Sends a frame to the client. */
-        send_frame(frame, frame_size, send_on_uart);
-    }
