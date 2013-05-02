@@ -93,9 +93,7 @@ Change the sequence number and type of the frame.
 Load the frame from a file, change its sequence number, source address and destination
 address. Then save the header, the payload and the complete frame into different files.
 
-> wsn-injector-cli -n -D --frame base.frm --seqno 3 --saddr --saddr ABCD-0001   \
-                   --daddr ABCD-0a:1b:2c:3d:4e:5f:6a:7b --write-haeader new.hdr \
-                   --write-payload new.pkt --write-frame new.frame
+> wsn-injector-cli -n -D --frame base.frm --seqno 3 --saddr --saddr ABCD-0001 --daddr ABCD-0a:1b:2c:3d:4e:5f:6a:7b --write-haeader new.hdr --write-payload new.pkt --write-frame new.frame
 
 Broadcast a frame on channel 11 with a random payload.
 
