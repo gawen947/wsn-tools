@@ -69,7 +69,11 @@ iofile_t iobuf_dopen(int fd)
   file->read_buf   = file->buf + IOBUF_SIZE;
   file->write_size = file->read_size = 0;
 
+/* We only declare the access pattern on architectures
+   that are known to support posix_fadvise. */
+#if defined(__linux__) || defined(__FreeBSD__)
   posix_fadvise(file->fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+#endif
 
   return file;
 }
