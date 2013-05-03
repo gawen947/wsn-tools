@@ -20,15 +20,20 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <endian.h>
 #include <limits.h>
 #include <err.h>
+
+#ifdef __FreeBSD__
+#include <sys/endian.h>
+#else
+#include <endian.h>
+#endif /* __FreeBSD__ */
 
 #include "iobuf.h"
 #include "pcap.h"
 
 static iofile_t pcap;
-static int timezone;
+static int      timezone_offset;
 static uint16_t (*ftoh16)(uint16_t);
 static uint32_t (*ftoh32)(uint32_t);
 
@@ -86,12 +91,12 @@ void open_reading_pcap(const char *path)
   else
     errx(EXIT_FAILURE, "invalid magic in pcap file");
 
-  read16(&pcap_major);           /* PCAP version */
+  read16(&pcap_major);                  /* PCAP version */
   read16(&pcap_minor);
-  read32((uint32_t *)&timezone); /* timezone in seconds (GMT) */
-  read32(&accuracy);             /* accuracy of timestamps */
-  read32(&max_length);           /* max length of packets */
-  read32(&data_link_type);       /* data link type */
+  read32((uint32_t *)&timezone_offset); /* timezone in seconds (GMT) */
+  read32(&accuracy);                    /* accuracy of timestamps */
+  read32(&max_length);                  /* max length of packets */
+  read32(&data_link_type);              /* data link type */
 
   /* check version */
   if(pcap_major != PCAP_MAJOR || pcap_minor != PCAP_MINOR)
@@ -134,7 +139,7 @@ unsigned char * pcap_read_frame(size_t *size, struct timeval *tv)
   read32(&actual_size);
 
   /* correct the timezone */
-  tv->tv_sec += timezone;
+  tv->tv_sec += timezone_offset;
 
   if(*size != actual_size)
     errx(EXIT_FAILURE, "incomplete frame in the pcap file");

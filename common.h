@@ -18,7 +18,11 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#ifdef __FreeBSD__
+#include <sys/endian.h>
+#else
 #include <endian.h>
+#endif /* __FreeBSD__ */
 
 #define U8_TO(type, ptr) *((type *)(ptr))
 #define S_BOOLEAN(a) ((a) ? "yes" : "no")

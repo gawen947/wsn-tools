@@ -19,9 +19,15 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <endian.h>
 #include <string.h>
 #include <assert.h>
+
+#ifdef __FreeBSD__
+#include <sys/endian.h>
+#else
+#include <endian.h>
+#endif /* __FreeBSD__ */
+
 
 #include "mac.h"
 #include "common.h"
