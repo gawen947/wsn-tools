@@ -16,7 +16,6 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>. */
 
 #define _BSD_SOURCE
-#define _POSIX_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
