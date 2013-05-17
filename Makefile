@@ -64,6 +64,7 @@ install:
 	$(INSTALL_PROGRAM) wsn-sniffer-cli $(DESTDIR)/$(PREFIX)/$(BIN)
 	$(INSTALL_PROGRAM) wsn-injector-cli $(DESTDIR)/$(PREFIX)/$(BIN)
 	$(INSTALL_PROGRAM) wsn-ping-cli $(DESTDIR)/$(PREFIX)/$(BIN)
+	$(INSTALL_PROGRAM) pcap-selector $(DESTDIR)/$(PREFIX)/$(BIN)
 
 uninstall:
 	$(RM) $(DESTDIR)/$(PREFIX)/wsn-sniffer-cli
