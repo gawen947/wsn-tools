@@ -21,11 +21,12 @@
 #include "mac.h"
 
 /* mac information */
-enum mac_info { MI_CONTROL = 0x1, /* display frame control */
-                MI_SEQNO   = 0x2, /* display sequence number */
-                MI_ADDR    = 0x4, /* display addressing fields */
-                MI_SECURITY= 0x8  /* display auxiliary security header */ };
-#define MI_ALL 0xf /* display everything */
+enum mac_info { MI_CONTROL  = 0x1, /* display frame control */
+                MI_SEQNO    = 0x2, /* display sequence number */
+                MI_ADDR     = 0x4, /* display addressing fields */
+                MI_SECURITY = 0x8, /* display auxiliary security header */
+                MI_FCS      = 0x10 /* display frame check sequence */ };
+#define MI_ALL 0x1f /* display everything */
 
 /* Display a decoded IEEE 802.15.4 MAC frame. The info flag selects fields of
    the MAC frame to display. */

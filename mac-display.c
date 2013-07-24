@@ -183,4 +183,7 @@ void mac_display(const struct mac_frame *frame, unsigned int info)
 
   if(frame->security && info & MI_SECURITY)
     printf(" Security not implemented\n");
+
+  if(info & MI_FCS)
+    printf(" FCS           : %.4x\n", frame->fcs);
 }

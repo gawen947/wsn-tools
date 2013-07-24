@@ -175,6 +175,7 @@ int main(int argc, char *argv[])
     { 'S', "show-security", "Display security auxiliary field" },
     { 'M', "show-mac", "Display all informations about MAC frames" },
     { 'P', "show-payload", "Try to decode and display the payload" },
+    { 'F', "show-fcs", "Display the frame check sequence" },
     { 'A', "show-all", "Display all informations" },
     { 0, NULL, NULL }
   };
@@ -194,13 +195,14 @@ int main(int argc, char *argv[])
     { "show-addr", no_argument, NULL, 'a' },
     { "show-security", no_argument, NULL, 'S' },
     { "show-mac", no_argument, NULL, 'M' },
+    { "show-fcs", no_argument, NULL, 'F' },
     { "show-payload", no_argument, NULL, 'P' },
     { "show-all", no_argument, NULL, 'A' },
     { NULL, 0, NULL, 0 }
   };
 
   while(1) {
-    int c = getopt_long(argc, argv, "hVp:C:cb:T:saSMPA", opts, NULL);
+    int c = getopt_long(argc, argv, "hVp:C:cb:T:saSMFPA", opts, NULL);
 
     if(c == -1)
       break;
@@ -238,6 +240,9 @@ int main(int argc, char *argv[])
       break;
     case('M'):
       mac_info = MI_ALL;
+      break;
+    case('F'):
+      mac_info |= MI_FCS;
       break;
     case('P'):
       payload = true;
