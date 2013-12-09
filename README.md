@@ -12,12 +12,14 @@ protocol.
 News
 ----
 
-Main page    : http://www.hauweele.net/~gawen/wsn-tools.html
+Main page: http://www.hauweele.net/~gawen/wsn-tools.html
 
-Mailing list (subscribe)   : wsn-tools+subscribe@googlegroups.com
-             (unsubscribe) : wsn-tools+unsubscribe@googlegroups.com
-             (post)        : wsn-tools@googlegroups.com
-             (arhives)     : http://groups.google.com/d/forum/wsn-tools
+Mailing list:
+
+* Subscribe at wsn-tools+subscribe@googlegroups.com
+* Unsubscribe at wsn-tools+unsubscribe@googlegroups.com
+* Post at wsn-tools@googlegroups.com
+* Archives at http://groups.google.com/d/forum/wsn-tools
 
 Rewriting
 ---------
