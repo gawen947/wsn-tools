@@ -27,7 +27,7 @@ Rewriting
 Note that we are currently working on the new version of WSN-Tools. In particular 
 this new version will include a redesign of the protocol. This new protocol will not 
 be compatible with the current version and requires an update. Discussions about the 
-new protocol are still open and comments are welcome on the mailing list (see below).
+new protocol are still open and comments are welcome on the mailing list (see above).
 
 TODO
 ----
