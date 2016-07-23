@@ -74,7 +74,7 @@ static void apply_crc(const unsigned char *sbuf, size_t size)
 {
   unsigned long crc;
 
-  crc = crc32(sbuf, size, 0);
+  crc = crc32_c(sbuf, size, 0);
 
   *((unsigned long *)(sbuf + size)) = crc;
 }
@@ -84,7 +84,7 @@ static bool check_crc(const unsigned char *buf, size_t size)
   uint32_t read_crc = *((unsigned long *)(buf + size));
   uint32_t comp_crc;
 
-  comp_crc = crc32(buf, size, 0);
+  comp_crc = crc32_c(buf, size, 0);
 
   return read_crc == comp_crc;
 }
