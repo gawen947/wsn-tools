@@ -19,12 +19,13 @@
 #include <ctype.h>
 #include <err.h>
 
+#include "xatoi.h"
 #include "802154-parse.h"
 
 int parse_channel(const char *arg)
 {
   const char *s;
-  int channel;
+  int channel, err;
 
   /* We basically check that the string is composed
      only of digits. */
@@ -35,9 +36,9 @@ int parse_channel(const char *arg)
   /* Only now that we know that the string is only
      composed of digits can we parse the integer
      value. */
-  channel = atoi(arg);
+  channel = xatou(arg, &err);
 
-  if(channel < 0 || channel > 26)
+  if(err || channel > 26)
     errx(EXIT_FAILURE, "invalid channel number");
 
   return channel;

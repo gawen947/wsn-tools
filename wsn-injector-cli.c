@@ -35,6 +35,7 @@
 #include "mac-display.h"
 #include "mac-parse.h"
 #include "802154-parse.h"
+#include "xatoi.h"
 #include "getflg.h"
 #include "version.h"
 #include "protocol.h"
@@ -200,6 +201,7 @@ int main(int argc, char *argv[])
   speed_t speed = B0;
   int timeout   = 10;
   int beacon    = -1;
+  int err;
 
   /* working frame */
   setup_default_frame(&frame);
@@ -324,9 +326,8 @@ int main(int argc, char *argv[])
       break;
     case 'B':
       if(optarg) {
-        beacon = atoi(optarg);
-
-        if(beacon < 0)
+        beacon = xatou(optarg, &err);
+        if(err)
           errx(EXIT_FAILURE, "invalid beacon value");
       }
       else
@@ -336,8 +337,8 @@ int main(int argc, char *argv[])
       display = true;
       break;
     case('T'):
-      timeout = atoi(optarg);
-      if(timeout < 0)
+      timeout = xatou(optarg, &err);
+      if(err)
         errx(EXIT_FAILURE, "invalid timeout value");
       break;
     case('C'):

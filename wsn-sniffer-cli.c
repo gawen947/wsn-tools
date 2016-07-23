@@ -32,6 +32,7 @@
 #include "dump.h"
 #include "help.h"
 #include "uart.h"
+#include "xatoi.h"
 #include "input.h"
 #include "protocol.h"
 #include "protocol-mqueue.h"
@@ -146,6 +147,7 @@ int main(int argc, char *argv[])
   unsigned short channel;
   speed_t speed = B0;
   int timeout = 0;
+  int err;
 
   int exit_status = EXIT_FAILURE;
 
@@ -215,8 +217,8 @@ int main(int argc, char *argv[])
       speed = baud(optarg);
       break;
     case('T'):
-      timeout = atoi(optarg);
-      if(timeout <= 0)
+      timeout = xatou(optarg, &err);
+      if(err || timeout == 0)
         errx(EXIT_FAILURE, "invalid timeout value");
       break;
     case('C'):

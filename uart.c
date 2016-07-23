@@ -27,10 +27,13 @@
 #include <errno.h>
 #include <err.h>
 
+#include "xatoi.h"
 #include "protocol.h"
 
 speed_t baud(const char *arg)
 {
+  int err;
+
   const struct {
     int     intval;
     speed_t baud;
@@ -54,11 +57,15 @@ speed_t baud(const char *arg)
     { 50, B50 },
     { 0,  B0 }};
 
-  int arg_val = atoi(arg);
+  int arg_val = xatou(arg, &err);
+  if(err)
+    goto ERR;
+
   for(b = bauds; b->intval ; b++)
     if(b->intval == arg_val)
       return b->baud;
 
+ERR:
   errx(EXIT_FAILURE, "unrecognized speed");
 }
 

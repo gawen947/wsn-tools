@@ -11,11 +11,12 @@ DEP  = $(SRC:.c=.d)
 TARGETS     = wsn-sniffer-cli wsn-injector-cli wsn-ping-cli pcap-selector
 
 SNIFFER_OBJ  = version.o iobuf.o dump.o help.o mac-display.o mac-decode.o pcap-write.o input.o uart.o wsn-sniffer-cli.o \
-               signal-utils.o 802154-parse.o protocol-mqueue.o protocol.o
+               signal-utils.o 802154-parse.o protocol-mqueue.o protocol.o xatoi.o
 INJECTOR_OBJ = version.o uart.o getflg.o atoi-gen.o help.o dump.o mac-encode.o mac-decode.o mac-display.o mac-parse.o \
-               wsn-injector-cli.o signal-utils.o input.o 802154-parse.o protocol-mqueue.o protocol.o string-utils.o
-PING_OBJ     = version.o uart.o help.o protocol.o input.o signal-utils.o wsn-ping-cli.o string-utils.o dump.o crc32.o
-SELECTOR_OBJ = version.o help.o pcap-write.o pcap-read.o pcap-list.o iobuf.o dump.o selector.o text-ui.o mac-decode.o string-utils.o mac-display.o
+               wsn-injector-cli.o signal-utils.o input.o 802154-parse.o protocol-mqueue.o protocol.o string-utils.o xatoi.o
+PING_OBJ     = version.o uart.o help.o protocol.o input.o signal-utils.o wsn-ping-cli.o string-utils.o dump.o crc32.o xatoi.o
+SELECTOR_OBJ = version.o help.o pcap-write.o pcap-read.o pcap-list.o iobuf.o dump.o selector.o text-ui.o mac-decode.o \
+               string-utils.o mac-display.o xatoi.o
 
 PREFIX  ?= /usr/local
 BIN     ?= /bin

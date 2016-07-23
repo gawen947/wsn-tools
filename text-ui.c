@@ -27,6 +27,7 @@
 
 #include "version.h"
 #include "dump.h"
+#include "xatoi.h"
 #include "mac-display.h"
 #include "string-utils.h"
 #include "pcap-list.h"
@@ -258,14 +259,16 @@ static bool cmd_prev(const char *arg)
 static bool cmd_goto(const char *arg)
 {
   unsigned int position;
+  int err;
+
   if(!arg) {
     warn_text_ui("Expected a position for the goto command");
     goto EXIT;
   }
 
-  position = atoi(arg);
+  position = xatou(arg, &err);
 
-  if(position < 1)
+  if(err || position < 1)
     position = 1;
   position--;
 

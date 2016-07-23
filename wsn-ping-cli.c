@@ -37,6 +37,7 @@
 #include "protocol.h"
 #include "string-utils.h"
 #include "signal-utils.h"
+#include "xatoi.h"
 #include "uart.h"
 #include "dump.h"
 #include "help.h"
@@ -246,6 +247,7 @@ int main(int argc, char *argv[])
   speed_t speed = B0;
   int interval  = 1000000;
   int size      = 64;
+  int err_v;
 
   int exit_status = EXIT_FAILURE;
 
@@ -293,18 +295,18 @@ int main(int argc, char *argv[])
 
     switch(c) {
     case('i'):
-      interval = atoi(optarg) * 1000;
-      if(interval < 0)
+      interval = xatou(optarg, &err_v) * 1000;
+      if(err)
         errx(EXIT_FAILURE, "invalid interval value");
       break;
     case('c'):
-      count = atoi(optarg);
-      if(count <= 0)
+      count = xatou(optarg, &err_v);
+      if(err_v || count == 0)
         errx(EXIT_FAILURE, "invalid count value");
       break;
     case('s'):
-      size = atoi(optarg);
-      if(size < 0 || size > MAX_PING_PADDING_SIZE)
+      size = xatou(optarg, &err_v);
+      if(err_v || size > MAX_PING_PADDING_SIZE)
         errx(EXIT_FAILURE, "invalid size value");
       break;
     case('f'):
