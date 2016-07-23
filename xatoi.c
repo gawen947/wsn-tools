@@ -90,7 +90,6 @@ EXIT:
 uint64_t xatou64(const char *s, int *err)
 {
   register unsigned long long r = 0;
-  uint64_t rr;
 
   *err = XATOI_SUCCESS;
 
@@ -100,9 +99,28 @@ uint64_t xatou64(const char *s, int *err)
       goto EXIT;
     }
 
-    /* There is no optimization for now
-       because xatou64() will be seldom
-       used compared to xatou32(). */
+#if defined(__x86_64__)
+    /* We cannot rely on a larger type
+       now so there is no magik, we just
+       have to rely on the carry. */
+    __asm__(" mov $0xa, %%rax;"
+            " mulq %[r];"
+            " jc 10f;"
+            " movzbq (%[s]), %%rcx;"
+            " sub    $0x30,  %%rcx;"
+            " add    %%rcx,  %%rax;"
+            " mov    %%rax,  %[r];"
+            " jc 10f;"
+            " jmp 20f;"
+            "10:"
+            " movl %[XATOI_OVERFLOW], (%[err]);"
+            "20:"
+            : [r] "=r" (r), [err] "=r" (err)
+            : "[r]" (r), [s] "r" (s), [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
+            : "cc", "memory", "rdx" /* mulq -> rdx:rax */, "rax", "rcx");
+#else
+    uint64_t rr;
+
     rr = r * 10;
     if(r != 0 && rr / r != 10)
       *err = XATOI_OVERFLOW;
@@ -112,6 +130,7 @@ uint64_t xatou64(const char *s, int *err)
     if(rr < r)
       *err = XATOI_OVERFLOW;
     r = rr;
+#endif
   }
 
 EXIT:
