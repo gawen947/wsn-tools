@@ -34,7 +34,7 @@ uint32_t xatou32(const char *s, int *err)
   *err = XATOI_SUCCESS;
 
   for(; *s ; s++) {
-    if(!isnumber(*s)) {
+    if(!isdigit(*s)) {
       *err = XATOI_INVALID;
       goto EXIT;
     }
@@ -94,7 +94,7 @@ uint64_t xatou64(const char *s, int *err)
   *err = XATOI_SUCCESS;
 
   for(; *s ; s++) {
-    if(!isnumber(*s)) {
+    if(!isdigit(*s)) {
       *err = XATOI_INVALID;
       goto EXIT;
     }
