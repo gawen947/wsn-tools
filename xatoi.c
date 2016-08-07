@@ -53,8 +53,11 @@ uint32_t xatou32(const char *s, int *err)
             "10:"
             " movl %[XATOI_OVERFLOW], (%[err]);"
             "20:"
-            : [r] "=r" (r), [err] "=r" (err)
-            : "[r]" (r), [s] "r" (s), [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
+            : [r] "=r" (r)
+            : "[r]" (r),
+              [err] "r" (err),
+              [s] "r" (s),
+              [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
             : "cc", "memory", "edx" /* mull -> edx:eax */, "eax", "ecx");
 #elif defined(__x86_64__)
     __asm__(" movzbq (%[s]), %%rax;"
@@ -65,8 +68,10 @@ uint32_t xatou32(const char *s, int *err)
             " je 10f;"
             " movl %[XATOI_OVERFLOW], (%[err]);"
             "10:"
-            : [r] "=r" (r), [err] "=r" (err)
-            : "[r]" (r), [s] "r" (s), [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
+            : [r] "=r" (r)
+            : "[r]" (r), [s] "r" (s),
+              [err] "r" (err),
+              [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
             : "cc", "memory", "rax");
 #else
     uint32_t rr;
@@ -115,8 +120,11 @@ uint64_t xatou64(const char *s, int *err)
             "10:"
             " movl %[XATOI_OVERFLOW], (%[err]);"
             "20:"
-            : [r] "=r" (r), [err] "=r" (err)
-            : "[r]" (r), [s] "r" (s), [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
+            : [r] "=r" (r)
+            : "[r]" (r),
+              [err] "r" (err),
+              [s] "r" (s),
+              [XATOI_OVERFLOW] "i" (XATOI_OVERFLOW)
             : "cc", "memory", "rdx" /* mulq -> rdx:rax */, "rax", "rcx");
 #else
     uint64_t rr;
