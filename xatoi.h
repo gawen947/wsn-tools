@@ -44,18 +44,18 @@ enum XATOI_ERR {
 #endif /* xatou() */
 
 /* xatoul() */
-#if UINT_MAX == UINT32_MAX
+#if ULONG_MAX == UINT32_MAX
 # define xatoul(s, err) xatou32(s, err)
-#elif UINT_MAX == UINT64_MAX
+#elif ULONG_MAX == UINT64_MAX
 # define xatoul(s, err) xatou64(s, err)
 #else
 # error "Unsupported 'unsigned long' type width."
 #endif /* xatoul() */
 
 /* xatoull() */
-#if UINT_MAX == UINT32_MAX
+#if ULLONG_MAX == UINT32_MAX
 # define xatoull(s, err) xatou32(s, err)
-#elif UINT_MAX == UINT64_MAX
+#elif ULLONG_MAX == UINT64_MAX
 # define xatoull(s, err) xatou64(s, err)
 #else
 # error "Unsupported 'unsigned long long' type width."
