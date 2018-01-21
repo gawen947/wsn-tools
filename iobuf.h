@@ -28,8 +28,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <limits.h>
 
 #define IOBUF_SIZE 65536
+#define GETC_EOF   UCHAR_MAX + 1
+
+/* Remove the single trailing \n
+   from a line received from iobuf_gets(). */
+#define strip_gets_newline(buf, size) do { \
+    if(buf[size-1] == '\n')                \
+      buf[size-1] = '\0';                  \
+  } while(0)
 
 /* TODO: Define OFF_T_MIN and OFF_T_MAX. */
 
@@ -74,6 +83,21 @@ int iobuf_close(iofile_t file);
 
 /* Write a single character to the specified file. */
 int iobuf_putc(char c, iofile_t file);
+
+/* Read a single character from the specified file.
+   Return a negative number in case of error or GETC_EOF
+   if the end of file has been reached. */
+int iobuf_getc(iofile_t file);
+
+/* Read a single line of maximum count bytes into the buffer.
+   This function will never read more than count bytes into
+   the target buffer. Negative return values indicate an error.
+   A return value of zero indicates than EOF has been reached.
+   The buffer must always be at least one byte long because
+   it is always marked with the null terminating character.
+   The value returned is the length of the string placed in
+   the buffer (not including terminal '\0'). */
+ssize_t iobuf_gets(iofile_t file, void *buf, size_t count);
 
 /* The iobuf_lseek() function repositions the offset of the open stream
    associated with the file argument to the argument offset according to the

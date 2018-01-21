@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2016, David Hauweele <david@hauweele.net>
+/* Copyright (c) 2012-2018, David Hauweele <david@hauweele.net>
    All rights reserved.
 
    Redistribution and use in source and binary forms, with or without
@@ -22,7 +22,9 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define _POSIX_C_SOURCE 200112L
+#ifndef _POSIX_C_SOURCE
+# define _POSIX_C_SOURCE 200112L
+#endif /* _POSIX_C_SOURCE */
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -40,12 +42,28 @@
 struct iofile {
   int fd;
 
-  int write_size;
-  int read_size;
+  unsigned int write_size;
+  unsigned int read_size;
   char *write_buf;
   char *read_buf;
   char buf[IOBUF_SIZE * 2];
 };
+
+static ssize_t fill_buffer(iofile_t file)
+{
+  ssize_t partial_read = IOBUF_SIZE * 2; /* no refill */
+
+  if(file->read_size == 0) {
+    partial_read = read(file->fd, file->buf + IOBUF_SIZE, IOBUF_SIZE);
+    if(partial_read < 0) /* read error */
+      return partial_read;
+
+    file->read_size = partial_read;
+    file->read_buf  = file->buf + IOBUF_SIZE;
+  }
+
+  return partial_read;
+}
 
 int iobuf_flush(iofile_t file)
 {
@@ -97,7 +115,7 @@ iofile_t iobuf_open(const char *pathname, int flags, mode_t mode)
 
 ssize_t iobuf_write(iofile_t file, const void *buf, size_t count)
 {
-  if(count > IOBUF_SIZE - file->write_size) {
+  if(count > (IOBUF_SIZE - file->write_size)) {
     ssize_t partial_write;
 
     partial_write = iobuf_flush(file);
@@ -122,31 +140,25 @@ ssize_t iobuf_write(iofile_t file, const void *buf, size_t count)
 
 ssize_t iobuf_read(iofile_t file, void *buf, size_t count)
 {
-  ssize_t ret = count;
+  char *cbuf = buf;
 
   do {
-    ssize_t partial_read;
-
-    if(file->read_size == 0) {
-      partial_read = read(file->fd, file->buf + IOBUF_SIZE, IOBUF_SIZE);
-      if(partial_read == 0) /* end-of-file */
-        return ret - count;
-      else if(partial_read < 0) /* read error */
-        return partial_read;
-
-      file->read_size = partial_read;
-      file->read_buf  = file->buf + IOBUF_SIZE;
-    }
+    ssize_t partial_read = fill_buffer(file);
+    if(partial_read == 0)
+      goto EXIT;
+    else if(partial_read < 0)
+      return partial_read;
 
     partial_read = MIN(count, file->read_size);
-    memcpy(buf, file->read_buf, partial_read);
+    memcpy(cbuf, file->read_buf, partial_read);
     file->read_buf  += partial_read;
     file->read_size -= partial_read;
     count           -= partial_read;
-    buf             += partial_read;
+    cbuf            += partial_read;
   } while(count);
 
-  return ret;
+EXIT:
+  return cbuf - (char *)buf;
 }
 
 int iobuf_close(iofile_t file)
@@ -183,6 +195,56 @@ int iobuf_putc(char c, iofile_t file)
   file->write_buf++;
 
   return c;
+}
+
+int iobuf_getc(iofile_t file)
+{
+  ssize_t partial_read = fill_buffer(file);
+  if(partial_read < 0)
+    return partial_read;
+  else if(!partial_read)
+    return GETC_EOF;
+
+  file->read_buf++;
+  file->read_size--;
+  return *file->read_buf;
+}
+
+ssize_t iobuf_gets(iofile_t file, void *buf, size_t count)
+{
+  char *cbuf = buf;
+
+  count--;
+
+  do {
+    char *eol;
+    ssize_t partial_read = fill_buffer(file);
+    if(partial_read == 0)
+      goto EXIT;
+    else if(partial_read < 0)
+      return partial_read;
+
+    partial_read = MIN(count, file->read_size);
+
+    eol = memchr(file->read_buf, '\n', partial_read);
+    if(eol) {
+      partial_read  = eol - file->read_buf + 1; /* keep newline */
+      count         = partial_read; /* will be zero and break */
+    }
+
+    memcpy(cbuf, file->read_buf, partial_read);
+
+    file->read_buf  += partial_read;
+    file->read_size -= partial_read;
+    count           -= partial_read;
+    cbuf            += partial_read;
+  } while(count);
+
+EXIT:
+  /* mark EOL */
+  *cbuf = '\0';
+
+  return cbuf - (char *)buf;
 }
 
 off_t iobuf_lseek(iofile_t file, off_t offset, int whence)
